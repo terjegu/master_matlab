@@ -88,7 +88,7 @@ end
 
 % [~,Y_lpc,index] = lpcdtw(x,y,pm_x,pm_y);
 Y_lpc = Y_lpc(index,:);
-dist = distitar(Y_lpc,X_lpc_conv);
+dist = distitar(Y_lpc,X_lpc_conv,'d');
 [mindistance,minindex] = min(dist);
 % distmean = mean(dist)
 % distvar = sqrt(var(dist))

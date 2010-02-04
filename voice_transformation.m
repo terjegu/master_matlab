@@ -58,7 +58,7 @@ x_y = x_y-mean(x_y);                    % Normalize
 
 % Compute conversion correctness
 Y_lpc = Y_lpc(index,:);                 % Target signal
-dist = distitar(Y_lpc,X_lpc_conv);
+dist = distitar(Y_lpc,X_lpc_conv,'d');
 
 end
 

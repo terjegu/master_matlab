@@ -23,7 +23,7 @@ Y = lpcauto(y,p,tfy);
 
 
 % Construct the 'local match' score matrix 
-SM = distitar(X,Y);
+SM = distitar(X,Y,'x');
 SM = SM./(max(SM(:))+0.1);
 
 % Use dynamic programming to find the lowest-cost path

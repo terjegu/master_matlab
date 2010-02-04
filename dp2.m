@@ -50,9 +50,9 @@ for i = 2:N_i;
     % Cost matrix
 	for j = k:l
         % Scale the steps to discourage skipping ahead
-        kk1 = 8;	% long
+        kk1 = 13;	% long
         kk2 = 1;	% diagonal
-        kk3 = 9;	% vertical and horizontal
+        kk3 = 15;	% vertical and horizontal
         dd = D(i,j);
         [dmax, tb] = min([D(i-1, j-1)+dd*kk2, D(max(1,i-2), j-1)+dd*kk1,...
             D(i-1, max(1,j-2))+dd*kk1, D(i-1,j)+kk3*dd, D(i,j-1)+kk3*dd]);

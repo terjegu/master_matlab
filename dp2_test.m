@@ -40,9 +40,12 @@ for i = 2:N_i;
     elseif i>lim_1 && i>lim_2
         k = max(2,border_d);
         l = min(N_j,border_c);
-    else
+    elseif lim_1>lim_2
         k = max(2,border_d);
         l = min(N_j,border_b);
+    else
+        k = max(2,border_a);
+        l = min(N_j,border_c);
     end
 	D(i,2:k-1) = NaN;
     D(i,l+1:N_j) = NaN;

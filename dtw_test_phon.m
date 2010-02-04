@@ -4,13 +4,13 @@ close all;
 clear all;
 
 %%
-kk1 = 9;	% long
+kk1 = 13;	% long
 kk2 = 1;	% diagonal
-kk3 = 10;	% vertical and horizontal
+kk3 = 15;	% vertical and horizontal
 
 error_swap = 0;
 error_diff = 0;
-error_diff_bound = 1e-1; % 100 ms
+error_diff_bound = 5e-2; % 100 ms
 
 %% Load two speech waveforms of the same utterance
 % pitch samples
@@ -76,8 +76,8 @@ tfy = [leny analy skipy];
 [Y,E2,K2] = lpcauto(y,p,tfy);
 
 %% Construct the 'local match' scores matrix 
-SM = distitar(X,Y);
-SM = SM./(max(SM(:))+0.001); % scale values to [0 0.9999]
+SM = distitar(X,Y,'x');
+SM = SM/(max(SM(:))+0.001); % scale values to [0 0.9999]
 
 % Use dynamic programming to find the lowest-cost path
 % [p,q,C] = dp2(1-SM);
@@ -107,7 +107,7 @@ pm_y_w = pm_y(index);       % warped pitch samples
 w_p_w = pm_y_w(w_p_y(:,2)); % warped phone start samples
 
 %% Error measurements
-error_itakura = mean(distitar(X,Y_warp));
+error_itakura = mean(distitar(X,Y_warp,'d'));
 error_sec = zeros(N_lab,1);
 
 for i=1:N_lab
@@ -131,7 +131,7 @@ if (w_p_w(1) > w_p_x(2,1)) || (w_p_w(N_lab) < w_p_x(N_lab-1,1))
 end 
 
 error_improv = abs(w_p_y(:,1)-w_p_x(:,1))-error_sec(:);
-error_mean = mean(error_sec)/fs;
+error_mean = mean(error_sec/fs*1000);
 disp(' ');
 disp(['number of segments = ', num2str(N_lab)]);
 disp(['error_itakura = ', num2str(error_itakura)]);
