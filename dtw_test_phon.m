@@ -4,13 +4,13 @@ close all;
 clear all;
 
 %%
-kk1 = 13;	% long
+kk1 = 9;	% long
 kk2 = 1;	% diagonal
-kk3 = 15;	% vertical and horizontal
+kk3 = 10;	% vertical and horizontal
 
 error_swap = 0;
 error_diff = 0;
-error_diff_bound = 5e-2; % 100 ms
+error_diff_bound = 5e-2; % 50 ms
 
 %% Load two speech waveforms of the same utterance
 % pitch samples
@@ -42,8 +42,8 @@ lab_y = lab_y-skip;
 % y = x;
 %%
 N_lab = length(lab_x);
-w_p_y = zeros(N_lab,2); % start: phoneme - pitch sample match [samples,index in pm_y]
-w_p_x = zeros(N_lab,2); % target: phoneme - pitch sample match [samples,index in pm_x]
+w_p_y = zeros(N_lab,2); % start: phoneme - pitch match [samples,index in pm_y]
+w_p_x = zeros(N_lab,2); % target: phoneme - pitch match [samples,index in pm_x]
 for i=1:N_lab
     temp = abs(pm_y-lab_y(i,1));
 	[~,w_p_y(i,2)] = min(temp);     % assign index
@@ -126,11 +126,14 @@ for i=2:N_lab-1
 end
 
 % Error swap
-if (w_p_w(1) > w_p_x(2,1)) || (w_p_w(N_lab) < w_p_x(N_lab-1,1))
+if w_p_w(1) > w_p_x(2,1)
+    error_swap = error_swap + 1;
+end 
+if w_p_w(N_lab) < w_p_x(N_lab-1,1)
     error_swap = error_swap + 1;
 end 
 
-error_improv = abs(w_p_y(:,1)-w_p_x(:,1))-error_sec(:);
+error_improv = abs(w_p_y(:,1)-w_p_x(:,1))-error_sec;
 error_mean = mean(error_sec/fs*1000);
 disp(' ');
 disp(['number of segments = ', num2str(N_lab)]);

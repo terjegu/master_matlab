@@ -4,7 +4,7 @@ close all;
 clear all;
 
 %% Load GMM
-load 'gmm64';
+load 'gmm128';
 load 'wavfiles';
 N = 20e3;          % Number of training vectors
 
@@ -28,4 +28,4 @@ for k=1:p
 end
 
 %% Save Data
-save('variables64_20k','V','Gamma','sigma_diag');
+save('variables128_20k','V','Gamma','sigma_diag');

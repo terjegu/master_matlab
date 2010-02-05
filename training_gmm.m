@@ -5,8 +5,8 @@ clear all;
 load('wavfiles');
 
 %% Train GMM with EM-algorithm and kmeans for initialisation 
-m = 64;                         % Number of mixtures
-p = 16;                         % LPC order (Fs/1000)
+m = 128;                        % Number of mixtures
+p = 16;                         % LSF order (Fs/1000)
 N = 40e3;                       % Number of training vectors
 [S.mu,~,J]=kmeans(X_lsf(1:N,:),m);     % VQ
 
@@ -25,4 +25,4 @@ gm_obj = gmdistribution.fit(X_lsf(1:N,:),m,'CovType','diagonal','Start',S,'Regul
 
 
 %% Save variables
-save('gmm64','gm_obj');
+save('gmm128','gm_obj');

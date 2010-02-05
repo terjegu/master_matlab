@@ -2,8 +2,8 @@
 % Terje Gundersen 13.10.2009
 close all;
 clear all;
-load 'variables256_40k';
-load 'gmm256';
+load 'variables128_20k';
+load 'gmm128';
 
 %% Read files
 % filename = 's000228';
@@ -34,6 +34,12 @@ fn = length(X_lpc);
 X_lsf = zeros(fn,p);
 for i=1:fn
     X_lsf(i,:) = poly2lsf(X_lpc(i,:));
+end
+
+fn_y = length(Y_lpc);
+Y_lsf = zeros(fn_y,p);
+for i=1:fn_y
+    Y_lsf(i,:) = poly2lsf(Y_lpc(i,:));
 end
 
 P = posterior(gm_obj,X_lsf); % Posterior probability
@@ -88,7 +94,8 @@ end
 
 % [~,Y_lpc,index] = lpcdtw(x,y,pm_x,pm_y);
 Y_lpc = Y_lpc(index,:);
-dist = distitar(Y_lpc,X_lpc_conv,'d');
+dist = mean(distitar(Y_lpc,X_lpc_conv,'d'));
+disp(['itakura distance = ', num2str(dist)]);
 [mindistance,minindex] = min(dist);
 % distmean = mean(dist)
 % distvar = sqrt(var(dist))
