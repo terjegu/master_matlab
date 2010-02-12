@@ -2,19 +2,20 @@
 % Terje Gundersen 13.10.2009
 close all;
 clear all;
-load 'variables128_20k';
-load 'gmm128';
+variablename = '64_20k';
+load(['variables',variablename]);
+load('gmm64');
 
 %% Read files
 % filename = 's000228';
-filename = 's027328';
-[x,fs] = wavread(['data/source/t03',filename,'.wav']);
-[pm,~] = textread(['data/source_pm/t03',filename,'.pm'],'%f%f','headerlines',9);
+wavfile = 's040028';
+[x,fs] = wavread(['data/source/t03',wavfile,'.wav']);
+[pm,~] = textread(['data/source_pm/t03',wavfile,'.pm'],'%f%f','headerlines',9);
 pm_x = pm*fs;
 
 % Read target for testing
-[y,fs_y] = wavread(['data/target/t01',filename,'.wav']); % target
-[pm_y,~] = textread(['data/target_pm/t01',filename,'.pm'],'%f%f','headerlines',9);
+[y,fs_y] = wavread(['data/target/t01',wavfile,'.wav']); % target
+[pm_y,~] = textread(['data/target_pm/t01',wavfile,'.pm'],'%f%f','headerlines',9);
 pm_y = pm_y*fs;
 
 %% Compute LPC vectors
@@ -36,6 +37,7 @@ for i=1:fn
     X_lsf(i,:) = poly2lsf(X_lpc(i,:));
 end
 
+% Target LSF for testing purposes
 fn_y = length(Y_lpc);
 Y_lsf = zeros(fn_y,p);
 for i=1:fn_y
@@ -51,12 +53,14 @@ for i=1:fn
             gm_obj.mu(:,k)).*sigma_diag(:,k)+V(:,k))');
     end
 end
+save(['LSF',variablename],'X_lsf','Y_lsf','X_conv');
 
 %% LSF to LPC
 X_lpc_conv = zeros(fn,p+1);
 for i=1:fn
     X_lpc_conv(i,:) = lsf2poly(X_conv(i,:));
 end
+
 
 
 % e_x = lpcifilt2(x,X_lpc,pm_x);     % Exitation

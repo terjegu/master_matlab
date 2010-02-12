@@ -1,10 +1,10 @@
 function D=itakura(ar1,ar2)
 
-m1 = lpcar2rr(ar1);
-m2 = lpcar2ra(ar2);
-m2(:,1) = 0.5*m2(:,1);
-% D = 2*m1*m2'.*((ar1(:,1)./ar2(:,1)').^2);
-D = log(2*m1*m2');                        % If ar(:,1) == 1
+% m1 = lpcar2rr(ar1);
+% m2 = lpcar2ra(ar2);
+% m2(:,1) = 0.5*m2(:,1);
+% % D = 2*m1*m2'.*((ar1(:,1)./ar2(:,1)').^2);
+% D = log(2*m1*m2');                        % If ar(:,1) == 1
 
 [m,~] = size(ar1);
 [n,~] = size(ar2);
