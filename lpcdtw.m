@@ -1,4 +1,4 @@
-function [X,Y,index] = lpcdtw(x,y,pm_x,pm_y)
+function [X,Y,index,e_x,e_y] = lpcdtw(x,y,pm_x,pm_y)
 % [X,Y,index] = lpcdtw(x,y,pm_x,pm_y)
 %   Use dynamic programming to find the lowest-cost path between the
 %   x and y.
@@ -18,8 +18,8 @@ analy = max(256*ones(nfy-1,1),[pm_y(2);pm_y(3:nfy-1)-pm_y(1:nfy-3);length(y)-pm_
 skipy = zeros(nfy-1,1);
 tfy = [leny analy skipy];
 
-X = lpcauto(x,p,tfx);
-Y = lpcauto(y,p,tfy);
+[X,e_x] = lpcauto(x,p,tfx);
+[Y,e_y] = lpcauto(y,p,tfy);
 
 
 % Construct the 'local match' score matrix 
