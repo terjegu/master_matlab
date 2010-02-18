@@ -7,7 +7,7 @@
 %%
 N = 100; % number of containers
 
-for i=1:3
+for i=1:5
     figure(i)
     subplot(311);
     [X,xout] = hist(X_lsf(:,i),N);          % Source

@@ -47,19 +47,19 @@ for k=1:p              % parameter k
     index_y = find(index_z==k+p);
     gm_obj_x = gmdistribution(gm_obj_z.mu(:,index_x),gm_obj_z.Sigma(index_x,index_x,:),gm_obj_z.PComponents);
     for i=1:fn                 % vector i        
-        P = posterior(gm_obj_x,X_lsf(i,value_x)); % Posterior probability
+        P = posterior(gm_obj_x,X_lsf(i,k)); % Posterior probability
         mu_y = gm_obj_z.mu(:,index_y);
         mu_x = gm_obj_z.mu(:,index_x);
-        sigma_yx = squeeze(gm_obj_z.Sigma(index_y,index_y,:));
+        sigma_yx = squeeze(gm_obj_z.Sigma(index_y,index_x,:));
         sigma_xx = squeeze(gm_obj_z.Sigma(index_x,index_x,:));
         x_lsf = X_lsf(i,index_x);
-        X_conv(i,k) = sum(P'.*(mu_y+((sigma_yx.*(x_lsf-mu_x)).*sigma_xx)));
+        X_conv(i,k) = sum(P'.*(mu_y+(sigma_yx.*(x_lsf-mu_x).*sigma_xx)));
 %         temp = 0;
 %         for j=1:gm_obj_z.NComponents        % mixture j
-%             temp = temp + P(j).*(gm_obj_z.mu(j,index_y) + gm_obj_z.Sigma(index_y,:,j)*((X_lsf(i,index_x)-...
-%             gm_obj_z.mu(j,index_x))*gm_obj_z.Sigma(index_x,:,j))');
+%             temp = temp + P(j).*(gm_obj_z.mu(j,index_y) + gm_obj_z.Sigma(index_y,index_x,j)*((X_lsf(i,index_x)-...
+%             gm_obj_z.mu(j,index_x))*gm_obj_z.Sigma(index_x,index_x,j))');
 %         end
-%         X_conv(i,k) = temp;
+%         X_conv2(i,k) = temp;
     end
 end
 % save(['LSF',variablename],'X_lsf','Y_lsf','X_conv');

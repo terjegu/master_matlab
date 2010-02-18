@@ -1,4 +1,5 @@
-function [X_lsf,Y_lsf]=readfiles(N_iter)
+function [X_lsf,Y_lsf,M]=readfiles(N_iter)
+% [X_lsf,Y_lsf,M]=readfiles(N_iter) 
 % Read files to LSF matrix
 % Terje Gundersen 14.11.2009
 % N_iter = number of sentences
@@ -32,7 +33,7 @@ for i=3:N_iter+2
         pm_x = pm_x*fs;
         pm_y = pm_y*fs;
         
-        [X,Y,index] = lpcdtw(x,y,pm_x,pm_y);
+        [X,Y,index,M] = lpcdtw(x,y,pm_x,pm_y);
         Y = Y(index,:);
 
         fn_x = length(X);

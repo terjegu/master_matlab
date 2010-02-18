@@ -1,4 +1,4 @@
-function [X,Y,index,e_x,e_y] = lpcdtw(x,y,pm_x,pm_y)
+function [X,Y,index,SM] = lpcdtw(x,y,pm_x,pm_y)
 % [X,Y,index] = lpcdtw(x,y,pm_x,pm_y)
 %   Use dynamic programming to find the lowest-cost path between the
 %   x and y.
