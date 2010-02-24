@@ -1,12 +1,13 @@
 function [gmm,index_all] = training(X_lsf,Y_lsf,m,N)
 % [gmm,index_all] = training(X_lsf,Y_lsf,m,N)
 % TRAINING of GMM
-% m = Number of mixtures
-% N = Number of vectors
+% load('var/wavfiles');
+% m = 8; % Number of mixtures
+% N = numel(X_lsf(:,1)); %Number of vectors
 
 % Terje Gundersen 30.10.2009
 
-if nargin < 4 || N>numel(X_lsf(:,1))
+if nargin < 4 || N > numel(X_lsf(:,1))
    N = numel(X_lsf(:,1));
 end
 
@@ -23,23 +24,24 @@ gmm = cell(p,1);
 for i=1+p:2*p
     index_z = find(C(i,:)>=0.5);
     if isempty(find(index_z<=p, 1))
-        [~,source_i] = max(C(i,1:p)); 
+        [value_x,source_i] = max(C(i,1:p));
         index_z = [source_i,index_z];
-    end
-    % disp(index_z);
+%         disp(value_x);
+    end    
+%     disp(index_z);
     Z_t = Z(:,index_z);
     len_z = numel(index_z);
     
     [S.mu,~,J]=kmeans(Z_t,m);           % VQ for initialisation    
     N_j = numel(J);
-    S.Sigma = zeros(len_z,len_z,m);     % Variance of each cluster
-    S.PComponents = zeros(1,m);         % Prior of each cluster
+    S.Sigma = NaN(len_z,len_z,m);     % Variance of each cluster
+    S.PComponents = NaN(1,m);         % Prior of each cluster
     for j=1:m
         S.Sigma(:,:,j) = cov(Z_t(J==j,:));
         S.PComponents(1,j) = sum(J==j)/N_j;
     end
     
-    % GMM with EM
+%     GMM with EM
     gm_obj = gmdistribution.fit(Z_t,m,'CovType','full','Start',S,'Regularize',sigma_lb,'Options',opt);
     index_all{i-p}=index_z;
     gmm{i-p}=gm_obj;

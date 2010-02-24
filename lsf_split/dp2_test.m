@@ -1,4 +1,4 @@
-function [p,q,D,phi] = dp2(M)
+function [p,q,D] = dp2_test(M,kk1,kk2,kk3)
 % [p,q,D] = dp2(M) 
 % 	Use dynamic programming to find a min-cost path through matrix M.
 % 	Return state sequence in p,q
@@ -10,23 +10,21 @@ function [p,q,D,phi] = dp2(M)
 
 % Modified 2009-11-06 Terje Gundersen
 
-[N_i,N_j] = size(M);
-N_i = N_i+1;
-N_j = N_j+1;
+[r,c] = size(M);
+N_i = r+1;
+N_j = c+1;
 
-D = NaN(N_i,N_j);       % costs
+% costs
+D = NaN(N_i,N_j);
 D(1,1) = 0;
 D(2:N_i, 2:N_j) = M;
-phi = NaN(N_i,N_j);     % traceback
+
+phi = NaN(N_i,N_j);	% traceback
 
 % Global constraints I
-open_ends = 20;
+open_ends = 100;
 lim_1 = 2/3*(N_j-N_i/2-open_ends/2);
 lim_2 = 2/3*(2*N_i-N_j+open_ends/2);
-% Local constraints
-kk1 = 10;	% long
-kk2 = 1;	% diagonal
-kk3 = 10;	% vertical and horizontal
 for i = 2:N_i;
     % Global constraints II
     border_a = floor(i/2-open_ends/2);
@@ -52,29 +50,24 @@ for i = 2:N_i;
     
     % Cost matrix
 	for j = k:l
+        % Scale the steps to discourage skipping ahead
+%         kk1 = 8;	% long
+%         kk2 = 1;	% diagonal
+%         kk3 = 9;	% vertical and horizontal
         dd = D(i,j);
-        [dmax, tb] = min([D(i-1,j-1)+dd*kk2, D(max(1,i-2),j-1)+dd*kk1,...
-            D(i-1,max(1,j-2))+dd*kk1, D(i-1,j)+kk3*dd, D(i,j-1)+kk3*dd]);
+        [dmax, tb] = min([D(i-1, j-1)+dd*kk2, D(max(1,i-2), j-1)+dd*kk1,...
+            D(i-1, max(1,j-2))+dd*kk1, D(i-1,j)+kk3*dd, D(i,j-1)+kk3*dd]);
         D(i,j) = dmax;
         phi(i,j) = tb;
 	end
 end
 
 % Traceback from top left
-[val_i,ind_i] = min(D(end-open_ends:end,end));
-[val_j,ind_j] = min(D(end,end-open_ends:end));
-if val_i<val_j
-   i=N_i-open_ends+ind_i-1;
-   j=N_j;
-else
-    i=N_i;
-    j=N_j-open_ends+ind_j-1;
-end
-% i = N_i;
-% j = N_j;
+i = r+1; 
+j = c+1;
 p = i;
 q = j;
-while (i>2 && j>2)||(i==3 && j<2+open_ends)||(i<2+open_ends && j==3)
+while i > 2 && j > 2
 	tb = phi(i,j);
 	if (tb == 1)
         i = i-1;

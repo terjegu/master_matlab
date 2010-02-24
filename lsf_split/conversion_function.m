@@ -9,37 +9,37 @@ load('var/index');
 %% Read files
 % filename = 's000228';
 wavfile = 's071696';
-[x,fs] = wavread(['../data/source/t03',wavfile,'.wav']);
-[pm,~] = textread(['../data/source_pm/t03',wavfile,'.pm'],'%f%f','headerlines',9);
-pm_x = pm*fs;
+[x,fs] = wavread(['../data/source/t01',wavfile,'.wav']);
+% [pm,~] = textread(['../data/source_pm/t01',wavfile,'.pm'],'%f%f','headerlines',9);
+% pm_x = pm*fs;
 
 % Read target for testing
-[y,fs_y] = wavread(['../data/target/t01',wavfile,'.wav']); % target
-[pm_y,~] = textread(['../data/target_pm/t01',wavfile,'.pm'],'%f%f','headerlines',9);
-pm_y = pm_y*fs;
+[y,fs_y] = wavread(['../data/target/t03',wavfile,'.wav']); % target
+% [pm_y,~] = textread(['../data/target_pm/t03',wavfile,'.pm'],'%f%f','headerlines',9);
+% pm_y = pm_y*fs;
 
 %% Compute LPC vectors
-p = 16;                         % LPC order (Fs/1000)
-[X_lpc,Y_lpc,index] = lpcdtw(x,y,pm_x,pm_y);
+p = 10;                         % LPC order (Fs/1000)
+[X_lp,Y_lp] = lpcdtw2(x,y,fs,p);
 
 %% Convert LPC to LSF
-fn = numel(X_lpc(:,1));
-X_lsf = zeros(fn,p);
+fn = numel(X_lp(:,1));
+X_lsf = NaN(fn,p);
 for i=1:fn
-    X_lsf(i,:) = poly2lsf(X_lpc(i,:));
+    X_lsf(i,:) = poly2lsf(X_lp(i,:));
 end
 
 % Target LSF for testing purposes
-fn_y = numel(Y_lpc(:,1));
-Y_lsf = zeros(fn_y,p);
-for i=1:fn_y
-    Y_lsf(i,:) = poly2lsf(Y_lpc(i,:));
+% fn_y = numel(Y_lp(:,1));
+Y_lsf = NaN(fn,p);
+for i=1:fn
+    Y_lsf(i,:) = poly2lsf(Y_lp(i,:));
 end
 
 %% Conversion function
-X_conv = zeros(fn,p);
+X_conv = NaN(fn,p);
 
-for k=1:p              % parameter k
+for k=1:p                       % parameter k
     gm_obj_z = gmm{k};
     index_z = index_all{k};
     [~,index_x] = find(index_z<=p);
@@ -47,7 +47,7 @@ for k=1:p              % parameter k
     index_y = find(index_z==k+p);
     gm_obj_x = gmdistribution(gm_obj_z.mu(:,index_x),gm_obj_z.Sigma(index_x,index_x,:),gm_obj_z.PComponents);
     for i=1:fn                 % vector i        
-        P = posterior(gm_obj_x,X_lsf(i,k)); % Posterior probability
+        P = posterior(gm_obj_x,X_lsf(i,index_x)); % Posterior probability
         mu_y = gm_obj_z.mu(:,index_y);
         mu_x = gm_obj_z.mu(:,index_x);
         sigma_yx = squeeze(gm_obj_z.Sigma(index_y,index_x,:));
@@ -65,9 +65,9 @@ end
 % save(['LSF',variablename],'X_lsf','Y_lsf','X_conv');
 
 %% LSF to LPC
-X_lpc_conv = zeros(fn,p+1);
+X_lp_conv = NaN(fn,p+1);
 for i=1:fn
-    X_lpc_conv(i,:) = lpccc2ar(X_conv(i,:));
+    X_lp_conv(i,:) = lpccc2ar(X_conv(i,:));
 end
 
 
@@ -106,8 +106,8 @@ end
 % y_e = y_e/max(abs(y_e));
 
 % [~,Y_lpc,index] = lpcdtw(x,y,pm_x,pm_y);
-Y_lpc = Y_lpc(index,:);
-dist = distitar(Y_lpc,X_lpc_conv,'d');
+% Y_lpc = Y_lpc(index,:);
+dist = distitar(Y_lp,X_lp_conv,'d');
 [mindistance,minindex] = min(dist);
 dist = mean(dist);
 disp(['itakura distance = ', num2str(dist)]);
@@ -121,21 +121,15 @@ disp(['itakura distance = ', num2str(dist)]);
 
 
 %% Plot one lpc frame
-nfx = numel(pm_x);
-lenx = [pm_x(1); pm_x(2:nfx-1)-pm_x(1:nfx-2)];
-analx = max(256*ones(nfx-1,1),[pm_x(2);pm_x(3:nfx-1)-pm_x(1:nfx-3);numel(x)-pm_x(nfx-2)]-1);
-skipx = zeros(nfx-1,1);
-tfx = [lenx analx skipx];
-
 frame_num = minindex;
-N = round(tfx(frame_num,1));
+N = round(10*frame_num*fs/1e3);
 NFFT = pow2(nextpow2(N));
 t = (1:N)/fs*1000;
 frame = (N*frame_num+1:N*(frame_num+1));
 
-[X_freqz,f_x] = freqz(1,X_lpc(frame_num,:),NFFT,fs);
-[Y_freqz,f_y] = freqz(1,Y_lpc(frame_num,:),NFFT,fs);
-[X2_freqz,f_x2] = freqz(1,X_lpc_conv(frame_num,:),NFFT,fs);
+[X_freqz,f_x] = freqz(1,X_lp(frame_num,:),NFFT,fs);
+[Y_freqz,f_y] = freqz(1,Y_lp(frame_num,:),NFFT,fs);
+[X2_freqz,f_x2] = freqz(1,X_lp_conv(frame_num,:),NFFT,fs);
 
 
 p_axis = [0 8 -1 3];
