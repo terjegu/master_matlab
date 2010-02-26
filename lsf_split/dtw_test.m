@@ -7,6 +7,20 @@
 d1 = wavread('../data/source_down/t01s000997.wav');       % source
 [d2,sr] = wavread('../data/target_down/t03s000997.wav');  % target
 
+d1_s = strip(d1);
+d2_s = strip(d2);
+
+figure(2)
+subplot(211);
+plot(d1);
+subplot(212);
+plot(d1_s);
+
+figure(3)
+subplot(211);
+plot(d2);
+subplot(212);
+plot(d2_s);
 
 %% Calculate LPC features for both sounds
 p = 10; % LPC order (Fs/1000)

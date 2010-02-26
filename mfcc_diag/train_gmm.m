@@ -6,7 +6,7 @@ function gm_obj = train_gmm(X_mfcc,m,N)
 
 % Terje Gundersen 30.10.2009
 
-if nargin < 4
+if nargin < 3
     N = numel(X_mfcc(:,1));
 end
 

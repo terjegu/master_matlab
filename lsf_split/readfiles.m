@@ -1,4 +1,4 @@
-function [X_lsf,Y_lsf,M]=readfiles(N_iter)
+function [X_lsf,Y_lsf]=readfiles(N_iter)
 % [X_lsf,Y_lsf,M]=readfiles(N_iter) 
 % Read files to LSF matrix
 % Terje Gundersen 14.11.2009
@@ -33,22 +33,21 @@ for i=3:N_iter+2
         pm_x = pm_x*fs;
         pm_y = pm_y*fs;
         
-        [X,Y,index,M] = lpcdtw(x,y,pm_x,pm_y);
-        Y = Y(index,:);
+        [X_lp,Y_lp] = lpcdtw(x,y,pm_x,pm_y);
 
-        fn_x = length(X);
-        X_lsf_temp = zeros(fn_x,p);
+        fn_x = numel(X_lp(:,1));
+        X_lsf_temp = NaN(fn_x,p);
         for j=1:fn_x
-            X_lsf_temp(j,:) = poly2lsf(X(j,:));     % Convert LPC to LSF
+            X_lsf_temp(j,:) = poly2lsf(X_lp(j,:));     % Convert LPC to LSF
         end
 
         % Add to matrix
         X_lsf = [X_lsf;X_lsf_temp];
 
-        fn_y = length(Y);
-        Y_lsf_temp = zeros(fn_y,p);
+        fn_y = numel(Y_lp(:,1));
+        Y_lsf_temp = NaN(fn_y,p);
         for j=1:fn_y
-            Y_lsf_temp(j,:) = poly2lsf(Y(j,:));     % Convert LPC to LSF
+            Y_lsf_temp(j,:) = poly2lsf(Y_lp(j,:));     % Convert LPC to LSF
         end
 
         % Add to matrix

@@ -2,25 +2,25 @@
 % Terje Gundersen 13.10.2009
 close all;
 clear all;
-variablename = '128_20k';
-load(['variables',variablename]);
-load('gmm128');
+variablename = '64_20k';
+load(['var/variables',variablename]);
+load('var/gmm64');
 
 %% Read files
 % filename = 's000228';
 wavfile = 's071696';
-[x,fs] = wavread(['../data/source/t03',wavfile,'.wav']);
-[pm,~] = textread(['../data/source_pm/t03',wavfile,'.pm'],'%f%f','headerlines',9);
-pm_x = pm*fs;
+[x,fs] = wavread(['../data/source_down/t01',wavfile,'.wav']);
+% [pm,~] = textread(['../data/source_pm/t01',wavfile,'.pm'],'%f%f','headerlines',9);
+% pm_x = pm*fs;
 
 % Read target for testing
-[y,fs_y] = wavread(['../data/target/t01',wavfile,'.wav']); % target
-[pm_y,~] = textread(['../data/target_pm/t01',wavfile,'.pm'],'%f%f','headerlines',9);
-pm_y = pm_y*fs;
+[y,fs_y] = wavread(['../data/target_down/t03',wavfile,'.wav']); % target
+% [pm_y,~] = textread(['../data/target_pm/t03',wavfile,'.pm'],'%f%f','headerlines',9);
+% pm_y = pm_y*fs;
 
 %% Compute LPC vectors
-p = 16;                         % LPC order (Fs/1000)
-[X_lpc,Y_lpc,index] = lpcdtw(x,y,pm_x,pm_y);
+p = 13;                         % LPC order (Fs/1000)
+[X_lpc,Y_lpc] = lpcdtw2(x,y,p,fs);
 
 % p = 16;                         % LPC order (Fs/1000)
 % nfx = length(pm_x);
@@ -55,7 +55,7 @@ for i=1:fn
 end
 % save(['MFCC',variablename],'X_mfcc','Y_mfcc','X_conv');
 
-%% LSF to LPC
+%% MFCC to LPC
 X_lpc_conv = zeros(fn,p+1);
 for i=1:fn
     X_lpc_conv(i,:) = lpccc2ar(X_conv(i,:));
@@ -97,7 +97,7 @@ end
 % y_e = y_e/max(abs(y_e));
 
 % [~,Y_lpc,index] = lpcdtw(x,y,pm_x,pm_y);
-Y_lpc = Y_lpc(index,:);
+% Y_lpc = Y_lpc(index,:);
 dist = distitar(Y_lpc,X_lpc_conv,'d');
 [mindistance,minindex] = min(dist);
 dist = mean(dist);
@@ -112,14 +112,14 @@ disp(['itakura distance = ', num2str(dist)]);
 
 
 %% Plot one lpc frame
-nfx = length(pm_x);
-lenx = [pm_x(1); pm_x(2:nfx-1)-pm_x(1:nfx-2)];
-analx = max(256*ones(nfx-1,1),[pm_x(2);pm_x(3:nfx-1)-pm_x(1:nfx-3);length(x)-pm_x(nfx-2)]-1);
-skipx = zeros(nfx-1,1);
-tfx = [lenx analx skipx];
+% nfx = length(pm_x);
+% lenx = [pm_x(1); pm_x(2:nfx-1)-pm_x(1:nfx-2)];
+% analx = max(256*ones(nfx-1,1),[pm_x(2);pm_x(3:nfx-1)-pm_x(1:nfx-3);length(x)-pm_x(nfx-2)]-1);
+% skipx = zeros(nfx-1,1);
+% tfx = [lenx analx skipx];
 
 frame_num = minindex;
-N = round(tfx(frame_num,1));
+N = round(80*frame_num);
 NFFT = pow2(nextpow2(N));
 t = (1:N)/fs*1000;
 frame = (N*frame_num+1:N*(frame_num+1));
@@ -129,7 +129,7 @@ frame = (N*frame_num+1:N*(frame_num+1));
 [X2_freqz,f_x2] = freqz(1,X_lpc_conv(frame_num,:),NFFT,fs);
 
 
-p_axis = [0 8 -1 3];
+p_axis = [0 4 -1 3];
 
 % figure(6)
 % subplot(311);

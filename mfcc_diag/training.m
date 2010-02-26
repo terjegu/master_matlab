@@ -4,7 +4,7 @@ function [V,Gamma,sigma_diag] = training(gm_obj,X_mfcc,Y_mfcc,N)
 % Terje Gundersen 29.10.2009
 
 if nargin < 4
-    N = 20e3;          % Number of training vectors
+    N = numel(X_mfcc(:,1));          % Number of training vectors
 end
 
 % Compute V and Gamma

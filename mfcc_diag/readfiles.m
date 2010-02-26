@@ -32,22 +32,21 @@ for i=3:N+2
         pm_x = pm_x*fs;
         pm_y = pm_y*fs;
 
-        [X,Y,index] = lpcdtw(x,y,pm_x,pm_y);
-        Y = Y(index,:);
+        [X_lp,Y_lp] = lpcdtw(x,y,pm_x,pm_y);
      
-        fn_x = length(X);
-        X_mfcc_temp = zeros(fn_x,p);
+        fn_x = numel(X_lp(:,1));
+        X_mfcc_temp = NaN(fn_x,p);
         for j=1:fn_x
-            X_mfcc_temp(j,:) = lpcar2cc(X(j,:));     % Convert LPC to LSF
+            X_mfcc_temp(j,:) = lpcar2cc(X_lp(j,:));     % Convert LPC to LSF
         end
 
         % Add to matrix
         X_mfcc = [X_mfcc;X_mfcc_temp];
 
-        fn_y = length(Y);
-        Y_mfcc_temp = zeros(fn_y,p);
+        fn_y = numel(Y_lp(:,1));
+        Y_mfcc_temp = NaN(fn_y,p);
         for j=1:fn_y
-            Y_mfcc_temp(j,:) = lpcar2cc(Y(j,:));     % Convert LPC to LSF
+            Y_mfcc_temp(j,:) = lpcar2cc(Y_lp(j,:));     % Convert LPC to LSF
         end
 
         % Add to matrix

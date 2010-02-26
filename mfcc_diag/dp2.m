@@ -10,38 +10,41 @@ function [p,q,D] = dp2(M)
 
 % Modified 2009-11-06 Terje Gundersen
 
-[r,c] = size(M);
-N_i = r+1;
-N_j = c+1;
+[N_i,N_j] = size(M);
+N_i = N_i+1;
+N_j = N_j+1;
 
-% costs
-D = zeros(N_i,N_j);
-D(1,:) = NaN;
-D(:,1) = NaN;
+D = NaN(N_i,N_j);       % costs
 D(1,1) = 0;
 D(2:N_i, 2:N_j) = M;
-
-phi = zeros(N_i,N_j);	% traceback
+phi = NaN(N_i,N_j);     % traceback
 
 % Global constraints I
-lim_1 = 2/3*(N_j-N_i/2);
-lim_2 = 2/3*(2*N_i-N_j);
 open_ends = 20;
+lim_1 = 2/3*(N_j-N_i/2-open_ends/2);
+lim_2 = 2/3*(2*N_i-N_j+open_ends/2);
+% Local constraints
+kk1 = 10;	% long
+kk2 = 1;	% diagonal
+kk3 = 10;	% vertical and horizontal
 for i = 2:N_i;
     % Global constraints II
-    border_a = floor(i/2)-open_ends;
+    border_a = floor(i/2-open_ends/2);
     border_b = 2*i+open_ends;
-    border_c = floor((i-N_i)/2)+N_j+open_ends;
+    border_c = floor((i-N_i)/2+N_j+open_ends/2);
     border_d = 2*i+N_j-2*N_i-open_ends;
     
     if i<lim_1 && i<lim_2
         k = max(2,border_a);
         l = min(N_j,border_b);
-    elseif (i<lim_1 && i>lim_2)||(i<lim_2 && i>lim_1)
-        k = max(2,border_a);
-        l = min(N_j,border_c);
-    else
+    elseif i>lim_1 && i>lim_2
         k = max(2,border_d);
+        l = min(N_j,border_c);
+    elseif lim_1>lim_2
+        k = max(2,border_d);
+        l = min(N_j,border_b);
+    else
+        k = max(2,border_a);
         l = min(N_j,border_c);
     end
 	D(i,2:k-1) = NaN;
@@ -50,20 +53,24 @@ for i = 2:N_i;
     % Cost matrix
 	for j = k:l
         % Scale the steps to discourage skipping ahead
-        kk1 = 13;	% long
-        kk2 = 1;	% diagonal
-        kk3 = 15;	% vertical and horizontal
         dd = D(i,j);
-        [dmax, tb] = min([D(i-1, j-1)+dd*kk2, D(max(1,i-2), j-1)+dd*kk1,...
-            D(i-1, max(1,j-2))+dd*kk1, D(i-1,j)+kk3*dd, D(i,j-1)+kk3*dd]);
+        [dmax, tb] = min([D(i-1,j-1)+dd*kk2, D(max(1,i-2),j-1)+dd*kk1,...
+            D(i-1,max(1,j-2))+dd*kk1, D(i-1,j)+kk3*dd, D(i,j-1)+kk3*dd]);
         D(i,j) = dmax;
         phi(i,j) = tb;
 	end
 end
 
 % Traceback from top left
-i = r+1; 
-j = c+1;
+[val_i,ind_i] = min(D(end-open_ends:end,end));
+[val_j,ind_j] = min(D(end,end-open_ends:end));
+if val_i<val_j
+   i=N_i-open_ends+ind_i-1;
+   j=N_j;
+else
+    i=N_i;
+    j=N_j-open_ends+ind_j-1;
+end
 p = i;
 q = j;
 while i > 2 && j > 2

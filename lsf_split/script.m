@@ -3,10 +3,12 @@ close all;
 clear all;
 
 %% Read files
-[X_lsf,Y_lsf] = readfiles2(2,10);
+N = 5; % Sentences
+p = 10; % LSF order
+[X_lsf,Y_lsf] = readfiles2(N,p);
 Z = [X_lsf,Y_lsf];
 C = corrcoef(Z);
-max(C(11:20,1:10),[],2)
+max_corr = max(C(11:20,1:10),[],2)
 % save('var/wavfiles','X_lsf','Y_lsf');
 
 %% Train GMM
