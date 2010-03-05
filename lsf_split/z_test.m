@@ -1,4 +1,9 @@
+% dup = find(diff(index)==0);
 
-a = [1 2 3 3 4 5 5 6];
+uni = unique(index);
 
-c = find((a(2:end)-a(1:end-1))==0)
+uni2 = NaN(numel(uni),1);
+for i=1:numel(uni)
+    find(index==uni(i))
+    uni2(i) = mean(find(index==uni(i)));
+end

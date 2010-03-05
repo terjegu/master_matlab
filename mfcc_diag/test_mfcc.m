@@ -7,7 +7,7 @@
 %%
 N = 100; % number of containers
 
-for i=1:13
+for i=1:3
     figure(i)
     subplot(311);
     [X,xout] = hist(X_mfcc(:,i),N);          % Source

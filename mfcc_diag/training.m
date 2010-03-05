@@ -15,7 +15,8 @@ P = posterior(gm_obj,X_mfcc(1:N,:)); % Posterior probability
 % Convert the vector Sigma into a diagonal matrix and invert it.
 sigma_diag = zeros(m,p);
 for i=1:m
-	sigma_diag(i,:) = 1./sqrt(gm_obj.Sigma(1,:,i));
+	sigma_diag(i,:) = 1./gm_obj.Sigma(1,:,i);
+%     sigma_diag(i,:) = 1./sqrt(gm_obj.Sigma(1,:,i));
 end
 
 % Compute V and Gamma for each p

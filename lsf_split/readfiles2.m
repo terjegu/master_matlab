@@ -29,12 +29,14 @@ for i=3:N_iter+2
         x = wavread([source_dir,'/',filename_x{1}]);	% Read wav file
         y = wavread([target_dir,'/',filename_y{1}]);	% Read wav file
         
-        x = strip(x);
-        y = strip(y);
+        % Strip silence in beginning and end of sentence
+        x = strip_sil(x);
+        y = strip_sil(y);
         
-        x = strip_unv(x);
-        y = strip_unv(y);
-        
+        % Strip unvoiced frames
+        x = strip_unv(x,fs);
+        y = strip_unv(y,fs);
+
         [X,Y] = lpcdtw2(x,y,fs,p);
         
         fn = numel(X(:,1));

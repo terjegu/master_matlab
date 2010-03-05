@@ -17,6 +17,8 @@ wavfile = 's071696';
 [y,fs_y] = wavread(['../data/target/t03',wavfile,'.wav']); % target
 % [pm_y,~] = textread(['../data/target_pm/t03',wavfile,'.pm'],'%f%f','headerlines',9);
 % pm_y = pm_y*fs;
+x = strip_sil(x);
+y = strip_sil(y);
 
 %% Compute LPC vectors
 p = 10;                         % LPC order (Fs/1000)

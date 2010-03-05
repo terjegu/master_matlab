@@ -5,10 +5,11 @@ function [X_warp,Y_warp] = lpcdtw(x,y,pm_x,pm_y)
 %   Used in training
 
 p = 16;                         % LPC order (Fs/1000)
-nfx = length(pm_x);
-nfy = length(pm_y);
+nfx = numel(pm_x);
+nfy = numel(pm_y);
 
-lenx = [pm_x(1); pm_x(2:nfx-1)-pm_x(1:nfx-2)];
+% diff
+lenx = [pm_x(1); diff(pm_x(1:nfx-1))];
 analx = max(256*ones(nfx-1,1),[pm_x(2);pm_x(3:nfx-1)-pm_x(1:nfx-3);length(x)-pm_x(nfx-2)]-1);
 skipx = zeros(nfx-1,1);
 tfx = [lenx analx skipx];

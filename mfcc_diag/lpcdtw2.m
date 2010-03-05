@@ -17,7 +17,7 @@ SM = distitar(X_lp,Y_lp,'x');
 SM = SM./(max(SM(:))+0.1);
 
 % Use dynamic programming to find the lowest-cost path
-[p1,q1,~] = dp2(1-SM);
+[p1,q1,~] = dp2(SM);
 
 % Update Y with new indecies
 m = max(p1);

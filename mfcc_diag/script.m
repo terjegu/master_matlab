@@ -10,21 +10,21 @@ save('var/wavfiles2','X_mfcc','Y_mfcc');
 
 %% Train GMM
 load('var/wavfiles2');
-m = 32;
-N = 200*m;
+m = 8;
+N = 500*20;
 gm_obj = train_gmm(X_mfcc,m,N);
-save('var/gmm32','gm_obj');
+save('var/gmm8','gm_obj');
 
 %% Training
 load('var/wavfiles2');
-load('var/gmm32');
-N = 200*32;
+load('var/gmm8');
+N = 500*20;
 [V,Gamma,sigma_diag] = training(gm_obj,X_mfcc,Y_mfcc,N);
-save('var/variables32_10k','V','Gamma','sigma_diag');
+save('var/variables8','V','Gamma','sigma_diag');
 
 %% Conversion
-load('var/gmm128');
-load('var/variables128_40k');
+load('var/gmm8');
+load('var/variables8');
 wavfile = 's071696';
 
 [X_mfcc,Y_mfcc,X_conv] = conversion2(gm_obj,V,Gamma,sigma_diag,wavfile);

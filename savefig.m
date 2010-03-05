@@ -202,13 +202,12 @@ function savefig(fname, varargin)
 		gsCompr=		sprintf(lossy, comp, '2 1 1 2', '2 1 1 2');
 	end
 	
-	% Generate the gs command.
-	switch(computer)													% Get gs command.
-		case {'MAC','MACI'},			gs= '/usr/local/bin/gs';
-		case {'PCWIN','PCWIN64'},		gs= 'gswin32c.exe';
-		otherwise,						gs= 'gs';
-	end
-	gs=		[gs		' -q -dNOPAUSE -dBATCH -dEPSCrop'];					% Essential.
+% 	% Generate the gs command.
+% 	switch(computer)													% Get gs command.
+% 		case {'MAC','MACI'},			gs= 'gs'; %'/usr/local/bin/gs';
+% 		otherwise,						gs= 'gs';
+% 	end
+	gs=		[		' gs -q -dNOPAUSE -dBATCH -dEPSCrop'];					% Essential.
 	gs=		[gs     ' -dPDFSETTINGS=/prepress -dEmbedAllFonts=' fonts];	% Must be first?
 	gs=		[gs		' -dUseFlateCompression=true'];						% Useful stuff.
 	gs=		[gs		' -dAutoRotatePages=/None'];						% Probably good.

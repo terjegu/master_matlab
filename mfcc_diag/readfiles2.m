@@ -23,6 +23,11 @@ for i=3:N+2
         x = wavread([source_path,'/',filename_x{1}]);	% Read wav file
         y = wavread([target_path,'/',filename_y{1}]);	% Read wav file
 
+        x = strip_sil(x);
+        y = strip_sil(y);
+        x = strip_unv(x,fs);
+        y = strip_unv(y,fs);
+        
         [X_lp,Y_lp] = lpcdtw2(x,y,p,fs);
      
         fn = numel(X_lp(:,1));
