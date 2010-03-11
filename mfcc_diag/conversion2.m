@@ -8,11 +8,6 @@ function [X_mfcc,Y_mfcc,X_conv] = conversion2(gm_obj,V,Gamma,sigma_diag,wavfile)
 [x,fs] = wavread(['../data/source_down/t01',wavfile,'.wav']); % source
 y = wavread(['../data/target_down/t03',wavfile,'.wav']); % target
 
-x = strip_sil(x);
-y = strip_sil(y);
-x = strip_unv(x,fs);
-y = strip_unv(y,fs);
-
 % Compute LPC vectors
 p = 13;                         % LPC order (Fs/1000)
 [X_lp,Y_lp] = lpcdtw2(x,y,p,fs);
@@ -50,7 +45,8 @@ end
 
 dist = distitar(Y_lp,X_lp_conv,'d');
 [~,minindex] = min(dist);
-disp(['itakura distance = ', num2str(mean(dist))]);
+disp(['itakura distance before = ', num2str(mean(distitar(Y_lp,X_lp,'d')))]);
+disp(['itakura distance after = ', num2str(mean(dist))]);
 disp(['NCD = ', num2str(ncd(X_mfcc,X_conv,Y_mfcc))]);
 
 % Plot one lpc frame

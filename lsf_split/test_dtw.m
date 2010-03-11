@@ -4,8 +4,8 @@ close all;
 clear all;
 
 %% Load two speech waveforms of the same utterance
-x = wavread('../data/source_down/t01s001269.wav');       % source
-[y,fs] = wavread('../data/target_down/t03s001269.wav');  % target
+x = wavread('../data/source_down/t01s004540.wav');       % source
+[y,fs] = wavread('../data/target_down/t03s004540.wav');  % target
 
 x = strip_sil(x);
 y = strip_sil(y);
@@ -22,7 +22,7 @@ Y = lpcauto(y,p,tfx);
 
 %% Construct the 'local match' scores matrix 
 SM = distitar(X,Y,'x');
-% SM = SM./(max(SM(:))+0.001); % scale values to [0 0.9999]
+SM = SM./(max(SM(:))+0.001); % scale values to [0 0.9999]
  
 figure
 subplot(121)
@@ -30,8 +30,7 @@ imagesc(SM);
 colormap(1-gray);
 
 %% Shortest path 
-% Use dynamic programming to find the lowest-cost path
-[p,q,C] = dp(SM,2);
+[p,q,C] = dp(SM);
 
 % Overlay the path on the local similarity matrix
 hold on; 
@@ -45,21 +44,24 @@ plot(q,p,'r');
 hold off;
 
 %% Calculate the frames in Y that are indicated to match each frame
-% in X, so we can resynthesize a warped, aligned version
-% [m,n] = size(X);
+% in X
 m = max(p);
-n = max(min(p),1);
-index = NaN(m-n,1);
+n = min(p);
+% index = cell(m-n,1);
+Y2_warp = NaN(m-n,11);
 for i = n:m
-    index(i-n+1) = q(find(p >= i,1));
+%     index{i-n+1} = q(p == i);
+    Y2_warp(i-n+1,:) = mean(Y(q(p==i),:),1);
 end
 
-Y_warp = Y(index,:);
-X_warp = X(n:m,:);
+Y_warp = Y(q,:); % modifies both
+X_warp = X(p,:);
+
+X2_warp = X(unique(p),:);
 
 %%
-mean_dist = mean(distitar(X_warp,Y_warp,'d'));
-disp(mean_dist);
+disp(mean(distitar(X_warp,Y_warp,'d')));
+disp(mean(distitar(X2_warp,Y2_warp,'d')));
 
 %%
 % e2 = lpcifilt2(y,Y,pm_y);          % Exitation

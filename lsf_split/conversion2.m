@@ -40,16 +40,17 @@ for k=1:p                       % parameter k
         P = posterior(gm_obj_x,X_lsf(i,index_x)); % Posterior probability
         mu_y = gm_obj_z.mu(:,index_y);
         mu_x = gm_obj_z.mu(:,index_x);
-        sigma_yx = squeeze(gm_obj_z.Sigma(index_y,index_x,:));
-        sigma_xx = squeeze(gm_obj_z.Sigma(index_x,index_x,:));
-        x_lsf = X_lsf(i,index_x);
-        X_conv(i,k) = sum(P'.*(mu_y+(sigma_yx.*(x_lsf-mu_x).*sigma_xx)));
-%         temp = 0;
-%         for j=1:gm_obj_z.NComponents        % mixture j
-%             temp = temp + P(j).*(gm_obj_z.mu(j,index_y) + gm_obj_z.Sigma(index_y,index_x,j)*((X_lsf(i,index_x)-...
-%             gm_obj_z.mu(j,index_x))*gm_obj_z.Sigma(index_x,index_x,j))');
-%         end
-%         X_conv2(i,k) = temp;
+        sigma_yx = gm_obj_z.Sigma(index_y,index_x,:);
+%         sigma_yx = squeeze(gm_obj_z.Sigma(index_y,index_x,:))
+        sigma_xx = gm_obj_z.Sigma(index_x,index_x,:);
+        x_lsf = X_lsf(i,index_x)';
+%         X_conv(i,k) = sum(P'.*(mu_y+(sigma_yx.*(x_lsf-mu_x).*sigma_xx)));
+        temp = 0;
+        for j=1:gm_obj_z.NComponents        % mixture j
+            temp = temp + P(j).*(mu_y(j) + sigma_yx(1,:,j)*sigma_xx(:,:,j)*(x_lsf-...
+            mu_x(j,:)'));
+        end
+        X_conv(i,k) = temp;
     end
 end
 
@@ -61,7 +62,8 @@ end
 
 dist = distitar(Y_lp,X_lp_conv,'d');
 [~,minindex] = min(dist);
-disp(['itakura distance = ', num2str(mean(dist))]);
+disp(['itakura distance before = ', num2str(mean(distitar(Y_lp,X_lp,'d')))]);
+disp(['itakura distance after = ', num2str(mean(dist))]);
 
 X_mfcc_conv = NaN(fn,p);
 X_mfcc = NaN(fn,p);
@@ -82,9 +84,9 @@ NFFT = pow2(nextpow2(N));
 [Y_freqz,f_y] = freqz(1,Y_lp(frame_num,:),NFFT,fs);
 [X2_freqz,f_x2] = freqz(1,X_lp_conv(frame_num,:),NFFT,fs);
 
-% p_axis = [0 8 -1 3];
+% p_axis = [0 4 -1 3];
 
-figure(1)
+figure
 plot(f_x/1000,log10(abs(X_freqz)),'g');
 hold on;
 plot(f_y/1000,log10(abs(Y_freqz)),'r');

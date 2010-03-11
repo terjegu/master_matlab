@@ -1,4 +1,4 @@
-function [X_mfcc,Y_mfcc]=readfiles2(N,p)
+function [X_mfcc,Y_mfcc]=readfiles2(N)
 % [X_lsf,Y_lsf]=readfiles(N,p)
 % Read files to MFCC matrices
 % N = number of sentences
@@ -13,6 +13,7 @@ list_s = dir(source_path);
 list_t = dir(target_path);
 
 fs = 8e3;                       % Sampling frequency
+p = 13;
 X_mfcc = [];                     % Feature matrix used in training
 Y_mfcc = [];                     % Feature matrix used in training
 
@@ -22,11 +23,6 @@ for i=3:N+2
     if strcmp(filename_x{1}(1,4:end),filename_y{1}(1,4:end))
         x = wavread([source_path,'/',filename_x{1}]);	% Read wav file
         y = wavread([target_path,'/',filename_y{1}]);	% Read wav file
-
-        x = strip_sil(x);
-        y = strip_sil(y);
-        x = strip_unv(x,fs);
-        y = strip_unv(y,fs);
         
         [X_lp,Y_lp] = lpcdtw2(x,y,p,fs);
      

@@ -4,8 +4,8 @@ close all;
 clear all;
 
 %% Load two speech waveforms of the same utterance
-[x,fs] = wavread('../data/source_down/t01s000228.wav');
-y = wavread('../data/target_down/t03s000228.wav');
+[x,fs] = wavread('../data/source_down/t01s000310.wav');
+y = wavread('../data/target_down/t03s000310.wav');
 
 x = strip_sil(x);
 y = strip_sil(y);
@@ -21,23 +21,25 @@ Y = lpcauto(y,p,tf);
 
 %% Construct the 'local match' scores matrix 
 SM = distitar(X,Y,'x');
-SM = SM./(max(SM(:))+0.001); % scale values to [0 0.9999]
+% SM = SM./(max(SM(:))+0.001); % scale values to [0 0.9999]
 
 kk1_f = 1;	% vertical and horizontal
 kk2_f = 1; % long
 error_best = 10;
-for i = 2:10
+for i = 1:10
 %     for j = 2:10       
-        [p,q,~] = dp(SM,i);
+        [p1,q1,~] = dp(SM,i);
         
-    m = max(p);
-    n = max(min(p),1);
-    index = NaN(m-n,1);
+    m = max(p1);
+    n = min(p1);
+    Y_warp = NaN(m-n,p+1);
     for j = n:m
-        index(j-n+1) = q(find(p >= j,1));
+%     index{i-n+1} = q(p == i);
+        Y_warp(j-n+1,:) = mean(Y(q1(p1==j),:),1);
     end
-    Y_warp = Y(index,:);
-    X_warp = X(n:m,:);
+
+%     Y_warp = Y(index,:);
+    X_warp = X(unique(p1),:);
         
 %         fn_x = length(X_warp);
 %         X_lsf = zeros(fn_x,10);

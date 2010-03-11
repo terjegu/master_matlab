@@ -1,9 +1,14 @@
 % dup = find(diff(index)==0);
+x = wavread('../data/source_down/t01s004540.wav');       % source
 
-uni = unique(index);
+e_x = stenergy(x);
 
-uni2 = NaN(numel(uni),1);
-for i=1:numel(uni)
-    find(index==uni(i))
-    uni2(i) = mean(find(index==uni(i)));
-end
+s_x = strip_sil(x);
+
+figure
+subplot(311);
+plot(x)
+subplot(312);
+plot(e_x);
+subplot(313);
+plot(s_x);

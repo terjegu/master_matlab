@@ -24,9 +24,9 @@ open_ends = 20;
 lim_1 = 2/3*(N_j-N_i/2-open_ends/2);
 lim_2 = 2/3*(2*N_i-N_j+open_ends/2);
 % Local constraints
-kk1 = 7;	% long
+kk1 = 3;	% long
 kk2 = 1;	% diagonal
-kk3 = 9;	% vertical and horizontal
+kk3 = 2;	% vertical and horizontal
 for i = 2:N_i;
     % Global constraints II
     border_a = floor(i/2-open_ends/2);
