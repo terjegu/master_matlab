@@ -32,8 +32,14 @@ for i=3:N+2
         filename_ypm = {list_tpm(i,1).name};            
         [pm_x,~] = textread([source_pm_path,'/',filename_xpm{1}],'%f%f','headerlines',9);
         [pm_y,~] = textread([target_pm_path,'/',filename_ypm{1}],'%f%f','headerlines',9);
-        pm_x = pm_x*fs;                                 % seconds to samples
-        pm_y = pm_y*fs;
+        pm_x = fix(pm_x*fs);                                 % seconds to samples
+        pm_y = fix(pm_y*fs);
+        
+%         disp(filename_y);
+        [x,pm_x] = strip_sil(x,pm_x);
+        [y,pm_y] = strip_sil(y,pm_y);
+        [x,~,pm_x] = strip_unv(x,fs,pm_x);
+        [y,~,pm_y] = strip_unv(y,fs,pm_y);
         
         [X_lp,Y_lp] = lpcdtw(x,y,pm_x,pm_y,p,fs);
      

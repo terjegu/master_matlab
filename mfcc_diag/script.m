@@ -3,12 +3,12 @@ clear all;
 close all;
 
 %% Read files
-N = 2;
+N = 20;
 [X_mfcc,Y_mfcc] = readfiles(N);
 % save('var/wavfiles','X_mfcc','Y_mfcc');
 
 %% Train GMM
-load('var/wavfiles2');
+load('var/wavfiles');
 m = 32;
 % N = 500*20;
 gm_obj = train_gmm(X_mfcc,m);
@@ -22,8 +22,8 @@ load('var/gmm256');
 save('var/variables256','V','Gamma','sigma_diag');
 
 %% Conversion
-load('var/gmm256');
-load('var/variables256');
+load('var/gmm128');
+load('var/variables128');
 wavfile = 's016804';
 
-[X_mfcc,Y_mfcc,X_conv] = conversion2(gm_obj,V,Gamma,sigma_diag,wavfile);
+[X_lp,Y_lp,X_lp_conv] = conversion2(gm_obj,V,Gamma,sigma_diag,wavfile);

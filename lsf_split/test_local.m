@@ -4,8 +4,8 @@ close all;
 clear all;
 
 %% Load two speech waveforms of the same utterance
-[x,fs] = wavread('../data/source_down/t01s000310.wav');
-y = wavread('../data/target_down/t03s000310.wav');
+[x,fs] = wavread('../data/source_down/t01s001387.wav');
+y = wavread('../data/target_down/t03s001387.wav');
 
 x = strip_sil(x);
 y = strip_sil(y);
@@ -26,20 +26,20 @@ SM = distitar(X,Y,'x');
 kk1_f = 1;	% vertical and horizontal
 kk2_f = 1; % long
 error_best = 10;
-for i = 1:10
-%     for j = 2:10       
-        [p1,q1,~] = dp(SM,i);
+for i = 1:5
+    for j = 1:5       
+        [p1,q1,~] = dp(SM,i,j);
         
-    m = max(p1);
-    n = min(p1);
-    Y_warp = NaN(m-n,p+1);
-    for j = n:m
-%     index{i-n+1} = q(p == i);
-        Y_warp(j-n+1,:) = mean(Y(q1(p1==j),:),1);
-    end
+        m = max(p1);
+        n = min(p1);
+        Y_warp = NaN(m-n,p+1);
+        for k = n:m
+    %     index{i-n+1} = q(p == i);
+            Y_warp(k-n+1,:) = mean(Y(q1(p1==k),:),1);
+        end
 
-%     Y_warp = Y(index,:);
-    X_warp = X(unique(p1),:);
+    %     Y_warp = Y(index,:);
+        X_warp = X(unique(p1),:);
         
 %         fn_x = length(X_warp);
 %         X_lsf = zeros(fn_x,10);
@@ -63,10 +63,11 @@ for i = 1:10
         if error_itakura < error_best
            error_best = error_itakura;
            kk1_f = i;
-%            kk3_f = j;
+           kk2_f = j;
         end 
-%     end
+    end
 end
 
 disp(error_best);
 disp(['Alpha: ',num2str(kk1_f)]);
+disp(['Beta: ',num2str(kk2_f)]);

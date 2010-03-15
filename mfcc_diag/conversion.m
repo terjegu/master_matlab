@@ -1,4 +1,4 @@
-function [X_lp,Y_lp,X_lp_conv] = conversion2(gm_obj,V,Gamma,sigma_diag,wavfile)
+function [X_lp,Y_lp,X_lp_conv] = conversion(gm_obj,V,Gamma,sigma_diag,wavfile)
 % d = conversion2(gm_obj,V,Gamma,wavfile)
 % CONVERSION FUNCTION
 
@@ -7,10 +7,20 @@ function [X_lp,Y_lp,X_lp_conv] = conversion2(gm_obj,V,Gamma,sigma_diag,wavfile)
 % Read files
 [x,fs] = wavread(['../data/source_down/t01',wavfile,'.wav']); % source
 y = wavread(['../data/target_down/t03',wavfile,'.wav']); % target
+[pm_x,~] = textread(['../data/soucre_pm/',wavfile,'.pm'],'%f%f','headerlines',9);
+[pm_y,~] = textread(['../data/soucre_pm/',wavfile,'.pm'],'%f%f','headerlines',9);
+pm_x = fix(pm_x*fs);                                 % seconds to samples
+pm_y = fix(pm_y*fs);
+
+[x,pm_x] = strip_sil(x,pm_x);
+[y,pm_y] = strip_sil(y,pm_y);
+[x,~,pm_x] = strip_unv(x,fs,pm_x);
+[y,~,pm_y] = strip_unv(y,fs,pm_y);
 
 % Compute LPC vectors
 p = 13;                         % LPC order (Fs/1000)
-[X_lp,Y_lp] = lpcdtw2(x,y,p,fs);
+[X_lp,Y_lp] = lpcdtw(x,y,pm_x,pm_y,p,fs);
+% [X_lp,Y_lp,pm_x,pm_y] = lpcdtw(x,y,pm_x,pm_y,p,fs);
 
 % Convert LPC to MFCC
 fn = length(X_lp);

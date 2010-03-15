@@ -30,7 +30,7 @@ imagesc(SM);
 colormap(1-gray);
 
 %% Shortest path 
-[p,q,C] = dp(SM);
+[p,q,C] = dp(SM,1,1);
 
 % Overlay the path on the local similarity matrix
 hold on; 
@@ -47,21 +47,16 @@ hold off;
 % in X
 m = max(p);
 n = min(p);
-% index = cell(m-n,1);
-Y2_warp = NaN(m-n,11);
+
+Y_warp = NaN(m-n,11);
 for i = n:m
-%     index{i-n+1} = q(p == i);
-    Y2_warp(i-n+1,:) = mean(Y(q(p==i),:),1);
+    Y_warp(i-n+1,:) = mean(Y(q(p==i),:),1);
 end
 
-Y_warp = Y(q,:); % modifies both
-X_warp = X(p,:);
-
-X2_warp = X(unique(p),:);
+X_warp = X(unique(p),:);
 
 %%
 disp(mean(distitar(X_warp,Y_warp,'d')));
-disp(mean(distitar(X2_warp,Y2_warp,'d')));
 
 %%
 % e2 = lpcifilt2(y,Y,pm_y);          % Exitation
