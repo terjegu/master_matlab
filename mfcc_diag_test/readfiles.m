@@ -18,7 +18,7 @@ list_t = dir(target_path);
 list_tpm = dir(target_pm_path);
 
 fs = 8e3;                       % Sampling frequency
-p = 10;                          % LPC order (Fs/1000)
+p = 13;                          % LPC order (Fs/1000)
 X_mfcc = [];                     % Feature matrix used in training
 Y_mfcc = [];                     % Feature matrix used in training
 
@@ -32,23 +32,17 @@ for i=3:N+2
         filename_ypm = {list_tpm(i,1).name};            
         [pm_x,~] = textread([source_pm_path,'/',filename_xpm{1}],'%f%f','headerlines',9);
         [pm_y,~] = textread([target_pm_path,'/',filename_ypm{1}],'%f%f','headerlines',9);
-        pm_x = round(pm_x*fs);                                 % seconds to samples
-        pm_y = round(pm_y*fs);
+        pm_x = pm_x*fs;                                 % seconds to samples
+        pm_y = pm_y*fs;
         
-%         disp(filename_y);
-        [x,pm_x] = strip_sil(x,pm_x);
-        [y,pm_y] = strip_sil(y,pm_y);
-%         [x,~,pm_x] = strip_unv(x,fs,pm_x);
-%         [y,~,pm_y] = strip_unv(y,fs,pm_y);
-        
-        [X_lp,Y_lp] = lpcdtw(x,y,pm_x,pm_y,p);
+        [X_lp,Y_lp] = lpcdtw(x,y,pm_x,pm_y,p,fs);
      
-        fn_x = size(X_lp,1);
-        X_mfcc_temp = zeros(fn_x,p+3);
-        Y_mfcc_temp = zeros(fn_x,p+3);
+        fn_x = numel(X_lp(:,1));
+        X_mfcc_temp = NaN(fn_x,p);
+        Y_mfcc_temp = NaN(fn_x,p);
         for j=1:fn_x
-            X_mfcc_temp(j,:) = lpcar2cc(X_lp(j,:),p+3);     % Convert LPC to LSF
-            Y_mfcc_temp(j,:) = lpcar2cc(Y_lp(j,:),p+3);     % Convert LPC to LSF
+            X_mfcc_temp(j,:) = lpcar2cc(X_lp(j,:));     % Convert LPC to LSF
+            Y_mfcc_temp(j,:) = lpcar2cc(Y_lp(j,:));     % Convert LPC to LSF
         end
 
         % Add to matrix
