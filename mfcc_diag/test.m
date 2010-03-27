@@ -9,12 +9,15 @@ p = 10;
 
 [pm_x,~] = textread('../data/source_pm/t01s000510.pm','%f%f','headerlines',9);
 [pm_y,~] = textread('../data/target_pm/t03s000510.pm','%f%f','headerlines',9);
+
 pm_x = round(pm_x*fs);                                 % seconds to samples
 pm_y = round(pm_y*fs);
 
+
 [x,pm_x] = strip_sil(x,pm_x);
 [y,pm_y] = strip_sil(y,pm_y);
-
+[X_warp,Y_warp,pm_f] = lpcdtw(x,y,pm_x,pm_y,p,fs);
+%%
 
 ind_px = strip_unv(x,pm_x);
 % ind_py = strip_unv(y,pm_y);
@@ -57,5 +60,16 @@ subplot(313);
 plot(y,'g');
 
 %%
-soundsc(x_y,fs);
+% soundsc(x_y,fs);
 % wavwrite(x_y,fs,'baseline_without_unvoiced');
+
+%%
+pm_t = 100*ones(length(pm_x),1);
+pm_t(ind_px) = 0;
+figure(1)
+% subplot(211)
+plot(diff(pm_x));
+hold on;
+% subplot(212)
+plot(pm_t,'r');
+hold off;

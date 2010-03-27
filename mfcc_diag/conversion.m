@@ -1,4 +1,4 @@
-function [X_lp,X_lp_conv] = conversion(gm_obj,V,Gamma,sigma_diag,wavfile)
+function [X_lp,X_lp_conv,X_conv] = conversion(gm_obj,V,Gamma,sigma_diag,wavfile)
 % d = conversion2(gm_obj,V,Gamma,wavfile)
 % CONVERSION FUNCTION
 

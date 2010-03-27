@@ -5,11 +5,13 @@ function y = resynth(X_lp,X_conv,wavfile)
 [pm_x,~] = textread(['../data/source_pm/t01',wavfile,'.pm'],'%f%f','headerlines',9);
 pm_x = round(pm_x*fs);                                 % seconds to samples
 
+[x,pm_x] = strip_sil(x,pm_x);
 %% to find pm_y
 p = 10;
 y = wavread(['../data/target_down/t03',wavfile,'.wav']); % target
 [pm_y,~] = textread(['../data/target_pm/t03',wavfile,'.pm'],'%f%f','headerlines',9);
 pm_y = round(pm_y*fs);
+[y,pm_y] = strip_sil(y,pm_y);
 
 nx = length(x);
 ny = length(y);
@@ -42,14 +44,22 @@ end
 pm_x = pm_x(unique(p1));
 pm_y = pm_y(index);
 %%
-
-
+figure(1)
+subplot(311)
+plot(x);
+title('Source');
 e_x = lpcifilt2(x,X_lp,pm_x);
+subplot(312)
+plot(e_x)
+title('Excitation');
+disp([size(X_lp,1) length(pm_x) length(pm_y)]);
 
 y = psolasynth(e_x,pm_y,pm_x,X_conv);
 y = y-mean(y);
 y(y>0.4) = 0.4;
 y(y<-0.4) = -0.4;
-
+subplot(313)
+plot(y);
+title('Converted');
 
 end

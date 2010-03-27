@@ -1,4 +1,4 @@
-function [X_mfcc,Y_mfcc]=readfiles(N)
+function [X_mfcc,Y_mfcc,pm_f]=readfiles(N)
 % [X_lsf,Y_lsf]=readfiles(N)
 % Read files to MFCC matrices
 % N = number of sentences
@@ -18,9 +18,10 @@ list_t = dir(target_path);
 list_tpm = dir(target_pm_path);
 
 fs = 8e3;                       % Sampling frequency
-p = 10;                          % LPC order (Fs/1000)
-X_mfcc = [];                     % Feature matrix used in training
-Y_mfcc = [];                     % Feature matrix used in training
+p = 10;                         % LPC order (Fs/1000)
+X_mfcc = [];                    % Feature matrix used in training
+Y_mfcc = [];                    % Feature matrix used in training
+pm_f = [];                      % F_0 for target vectors
 
 for i=3:N+2
     filename_x = {list_s(i,1).name};
@@ -41,7 +42,7 @@ for i=3:N+2
 %         [x,~,pm_x] = strip_unv(x,fs,pm_x);
 %         [y,~,pm_y] = strip_unv(y,fs,pm_y);
         
-        [X_lp,Y_lp] = lpcdtw(x,y,pm_x,pm_y,p);
+        [X_lp,Y_lp,pm_f_temp] = lpcdtw(x,y,pm_x,pm_y,p,fs);
      
         fn_x = size(X_lp,1);
         X_mfcc_temp = zeros(fn_x,p+3);
@@ -54,6 +55,7 @@ for i=3:N+2
         % Add to matrix
         X_mfcc = [X_mfcc;X_mfcc_temp];
         Y_mfcc = [Y_mfcc;Y_mfcc_temp];
+        pm_f = [pm_f;pm_f_temp];
     end
 end
 
