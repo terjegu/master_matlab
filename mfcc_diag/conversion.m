@@ -1,4 +1,4 @@
-function [X_lp,X_lp_conv,X_conv] = conversion(gm_obj,V,Gamma,sigma_diag,wavfile)
+function [X_lp,X_lp_conv,X_conv,ind_pm] = conversion(gm_obj,V,Gamma,sigma_diag,wavfile)
 % d = conversion2(gm_obj,V,Gamma,wavfile)
 % CONVERSION FUNCTION
 
@@ -63,7 +63,14 @@ end
 % MFCC to LPC
 X_lp_conv = zeros(fn,p+4);
 for i=1:fn
-    X_lp_conv(i,:) = lpccc2ar(X_conv(i,:));
+    % Force stability FIX OUTPUT MFCC
+    temp_ar = lpccc2ar(X_conv(i,:));
+    temp_rf = lpcar2rf(temp_ar);
+% 	temp_rf(abs(temp_rf)>=1) = 0.999*sign(temp_rf(abs(temp_rf)>=1));
+    temp_rf(temp_rf>=1) = 0.999;
+    temp_rf(temp_rf<=-1) = -0.999;
+    X_lp_conv(i,:) = lpcrf2ar(temp_rf);
+%     X_lp_conv(i,:) = lpccc2ar(X_conv(i,:));
 end
 X_lp_conv(:,p+2:end) = [];
 

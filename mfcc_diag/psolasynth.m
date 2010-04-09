@@ -39,13 +39,13 @@ end
 % Now, the synthesis, using the generated excitation signal and the time
 % warped filter coefficient sequence
 y = zeros(n_x,1);
-
 start = 1;
 endp = ep(1);
 [y(start:endp),mem] = filter(1,Y_lp(1,:),exct(start:endp)); 
 for i=2:nxfrms-1
     start = ep(i-1)+1;
     endp = ep(i);
+%     disp([start,endp,size(filter(1,Y_lp(i,:),exct(start:endp),mem))]);
     [y(start:endp),mem] = filter(1,Y_lp(i,:),exct(start:endp),mem); 
 end
 start = ep(nxfrms-1)+1;

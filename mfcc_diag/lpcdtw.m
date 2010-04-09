@@ -22,8 +22,8 @@ tfy = [leny analy skipy];
 X_lp = lpcauto(x,p,tfx); % LP analysis
 Y_lp = lpcauto(y,p,tfy);
 
-voiced_x = strip_unv(x,pm_x);
-voiced_y = strip_unv(y,pm_y);
+% voiced_x = strip_unv(x,pm_x);
+% voiced_y = strip_unv(y,pm_y);
 
 
 % disp([length(pm_y),size(Y_lp,1)]);

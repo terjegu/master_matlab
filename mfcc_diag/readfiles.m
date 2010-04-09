@@ -1,4 +1,4 @@
-function [X_mfcc,Y_mfcc,pm_f]=readfiles(N)
+function [X_mfcc,Y_mfcc,pm_f,f_0]=readfiles(N)
 % [X_lsf,Y_lsf]=readfiles(N)
 % Read files to MFCC matrices
 % N = number of sentences
@@ -58,5 +58,7 @@ for i=3:N+2
         pm_f = [pm_f;pm_f_temp];
     end
 end
+f_temp = diff(pm_y);
+f_0 = 1/f_temp(find(diff(f_temp)==0,1));
 
 end

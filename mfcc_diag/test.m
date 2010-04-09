@@ -16,60 +16,37 @@ pm_y = round(pm_y*fs);
 
 [x,pm_x] = strip_sil(x,pm_x);
 [y,pm_y] = strip_sil(y,pm_y);
-[X_warp,Y_warp,pm_f] = lpcdtw(x,y,pm_x,pm_y,p,fs);
+[X_warp,Y_warp,pm_x,pm_y] = lpcdtw(x,y,pm_x,pm_y,p,fs);
 %%
 
-ind_px = strip_unv(x,pm_x);
-% ind_py = strip_unv(y,pm_y);
-
-[X_warp,Y_warp,pm_x,pm_y,X_lp,Y_lp] = lpcdtw(x,y,pm_x,pm_y,p);
-
-e_x = lpcifilt2(x,X_lp,pm_x);
-% e_y = lpcifilt2(y,Y_lp,pm_y);
-
-Y_lp = insert(X_lp,Y_lp,ind_px);
-[x_y,ey_psola] = psolasynth(e_x,pm_y,pm_x,Y_lp);
-
-% update voiced frames
-% x_y = x;
-% ind_voi_x = (1:numel(x))';
-% ind_voi_x(ind_x) = [];
-% x_y(ind_voi_x) = x_y_voiced;
-
-% y_x = y;
-% ind_voi_y = (1:numel(y))';
-% ind_voi_y(ind_y) = [];
-% y_x(ind_voi_y) = y_x_voiced;
-
+e_x = lpcifilt2(x,X_warp,pm_x);
+e_y = lpcifilt2(y,Y_warp,pm_y);
+x_y = lpcfilt2(e_x,Y_warp,pm_x);
+y_x = lpcfilt2(e_y,X_warp,pm_y);
 %%
-
-% e_y_2=psolasynth(length(e_y),e_x,pm_y,pm_x,size(X_lp,1),Y_lp);
-% y_psola = lpcfilt2(e_y_2,Y_lp,pm_y);
-% X = enframe(x,80);
-% Y = filter2(X_lp,X');
-x_y = x_y-mean(x_y);
-x_y(x_y>0.4) = 0.4;
-x_y(x_y<-0.4) = -0.4;
-% % 
-figure(1)
-subplot(311);
-plot(x);
-subplot(312);
-plot(x_y,'r');
-subplot(313);
-plot(y,'g');
-
+% 
+% ind_px = strip_unv(x,pm_x);
+% % ind_py = strip_unv(y,pm_y);
+% 
+% [X_warp,Y_warp,pm_x,pm_y,X_lp,Y_lp] = lpcdtw(x,y,pm_x,pm_y,p);
+% 
+% e_x = lpcifilt2(x,X_lp,pm_x);
+% % e_y = lpcifilt2(y,Y_lp,pm_y);
+% 
+% Y_lp = insert(X_lp,Y_lp,ind_px);
+% [x_y,ey_psola] = psolasynth(e_x,pm_y,pm_x,Y_lp);
+% 
+% 
 %%
-% soundsc(x_y,fs);
-% wavwrite(x_y,fs,'baseline_without_unvoiced');
-
+% 
+% mfcc = X_mfcc_conv(:,1:13);
+% mfcc2 = zeros(size(mfcc));
+% for i=1:length(mfcc)
+%     temp_ar = lpccc2ar(mfcc(i,:));
+%     temp_rf = lpcar2rf(temp_ar);
+%     temp_rf(abs(temp_rf)>=1) = 0.999*sign(temp_rf(abs(temp_rf)>=1));
+%     disp(temp_rf);
+%     temp_ar2 = lpcrf2ar(temp_rf);
+%     mfcc2(i,:) = lpcar2cc(temp_ar2);
+% end
 %%
-pm_t = 100*ones(length(pm_x),1);
-pm_t(ind_px) = 0;
-figure(1)
-% subplot(211)
-plot(diff(pm_x));
-hold on;
-% subplot(212)
-plot(pm_t,'r');
-hold off;
