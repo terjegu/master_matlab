@@ -1,13 +1,47 @@
-function y = resynth(X_lp,X_conv,wavfile,pm_conv)
-% y = resynth(X_lp,X_conv,wavfile)
+function y = resynth(X_lp,X_lp_conv,wavfile,pm_conv)
+% y = resynth(X_lp,X_lp_conv,wavfile)
 
 [x,fs] = wavread(['../data/source_down/t01',wavfile,'.wav']); % source
+y_t = wavread(['../data/target_down/t03',wavfile,'.wav']); % target
 [pm_x,~] = textread(['../data/source_pm/t01',wavfile,'.pm'],'%f%f','headerlines',9);
+[pm_y,~] = textread(['../data/target_pm/t03',wavfile,'.pm'],'%f%f','headerlines',9);
 pm_x = round(pm_x*fs);                                 % seconds to samples
+pm_y = round(pm_y*fs);                                 % seconds to samples
 
 [x,pm_x] = strip_sil(x,pm_x);
+y_t = strip_sil(y_t,pm_y);
 
-% disp([pm_x(1:end-1),pm_conv]);
+% disp([pm_x(1:360),pm_conv]);
+
+e_x = lpcifilt2(x,X_lp,pm_x);
+% y = psolasynth(e_x,pm_x,pm_x,X_lp);
+y = psolasynth(e_x,pm_conv,pm_x(1:length(pm_conv)),X_lp_conv);
+% y = lpcfilt2(e_x,X_lp_conv,pm_x);
+
+y = y-mean(y);
+y(y>0.4) = 0.4;
+y(y<-0.4) = -0.4;
+
+figure(1)
+subplot(411)
+plot(x);
+title('Source');
+subplot(412)
+plot(e_x)
+title('Excitation');
+subplot(413)
+plot(y);
+title('Converted');
+subplot(414)
+plot(y_t);
+title('Converted');
+
+end
+
+
+
+
+
 % %% to find pm_y
 % p = 10;
 % y = wavread(['../data/target_down/t03',wavfile,'.wav']); % target
@@ -46,23 +80,3 @@ pm_x = round(pm_x*fs);                                 % seconds to samples
 % pm_x = pm_x(unique(p1));
 % pm_y = pm_y(index);
 % %%
-figure(1)
-subplot(311)
-plot(x);
-title('Source');
-e_x = lpcifilt2(x,X_lp,pm_x);
-subplot(312)
-plot(e_x)
-title('Excitation');
-
-% y = psolasynth(e_x,pm_conv,pm_x,X_conv);
-% y = psolasynth(e_x,pm_x,pm_x,X_conv);
-y = lpcfilt2(e_x,X_conv,pm_x);
-y = y-mean(y);
-y(y>0.4) = 0.4;
-y(y<-0.4) = -0.4;
-subplot(313)
-plot(y);
-title('Converted');
-
-end

@@ -22,20 +22,20 @@ tfy = [leny analy skipy];
 X_lp = lpcauto(x,p,tfx); % LP analysis
 Y_lp = lpcauto(y,p,tfy);
 
-% voiced_x = strip_unv(x,pm_x);
-% voiced_y = strip_unv(y,pm_y);
+voiced_x = strip_unv(x,pm_x); % UNCOMMENT
+voiced_y = strip_unv(y,pm_y); % UNCOMMENT
 
 
 % disp([length(pm_y),size(Y_lp,1)]);
 
 X_warp = X_lp;
 Y_warp = Y_lp;
-X_warp(voiced_x,:) = [];
-Y_warp(voiced_y,:) = [];
+X_warp(voiced_x,:) = []; % UNCOMMENT
+Y_warp(voiced_y,:) = []; % UNCOMMENT
 % pm_x(voiced_x) = [];
 % pm_y(voiced_y) = [];
 pm_f = 1./diff(pm_y/fs); % f_0 for target speaker
-pm_f(voiced_y) = [];
+pm_f(voiced_y) = []; % UNCOMMENT
 
 % Construct the 'local match' score matrix 
 SM = distitar(X_warp,Y_warp,'x');
@@ -47,7 +47,7 @@ SM = distitar(X_warp,Y_warp,'x');
 % Update Y with new indecies
 m = max(p1);
 n = min(p1);
-% Y_warp = NaN(m-n,p+1);
+% Y_warp = NaN(m-n,p+1); % for use of mean Y_warp
 index = zeros(m-n,1);
 for i = n:m
     index(i-n+1,:) = q1(find(p1 >= i,1));
