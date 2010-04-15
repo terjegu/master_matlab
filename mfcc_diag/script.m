@@ -25,7 +25,7 @@ load('var/gmm128');
 [V,Gamma,sigma_diag] = training(gm_obj,X_cc,Y_cc);
 save('var/variables128','V','Gamma','sigma_diag');
 
-%% Conversion
+%% Conversion of Cepstrum
 load('var/gmm128');
 load('var/variables128');
 wavfile = 's016804';

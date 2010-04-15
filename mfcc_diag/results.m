@@ -15,7 +15,7 @@ e_c = abs(pm_cdif(1:N)-pm_ydif(1:N));
 e_x = abs(pm_xdif(1:N)-pm_ydif(1:N));
 disp('    mean(e_c) std(e_c) mean(e_x) std(e_x)     Hz');
 disp([mean(e_c) std(e_c) mean(e_x) std(e_x)]);
-disp([pm_cdif(1:20),pm_xdif(1:20)]);
+disp([pm_cdif(1:200),pm_xdif(1:200)]);
 
 %% Test Frequency Transform
 load('var/converted');
