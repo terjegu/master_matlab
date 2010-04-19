@@ -23,9 +23,9 @@ skipx = zeros(nfx-1,1);
 tfx = [lenx analx skipx];
 
 X_lp = lpcauto(x,p,tfx); % LP analysis
-ind_pm = strip_unv(x,pm_x);
+ind_pm = 0;%strip_unv(x,pm_x); % UNCOMMENT, VOICED
 X_temp = X_lp;
-X_temp(ind_pm,:) = []; % UNCOMMENT
+% X_temp(ind_pm,:) = []; % UNCOMMENT
 
 % Convert LPC to MFCC
 fn = size(X_temp,1);
@@ -78,8 +78,9 @@ X_lp_conv = lpccc2ar(X_cc_conv(:,1:10));
 % % X_lp_conv(:,p+2:end) = [];
 
 
-
-X_lp_conv = insert(X_lp,X_lp_conv,ind_pm);
+if size(X_lp,1) ~= size(X_lp_conv,1)
+    X_lp_conv = insert(X_lp,X_lp_conv,ind_pm);
+end
 
 X_rf = lpcar2rf(X_lp_conv);
 X_rf(X_rf>=1) = 0.999;

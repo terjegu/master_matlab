@@ -24,10 +24,10 @@ for i=1:N
 end
 pm = f0mean_all*exp(pm_conv);
 
-for i=1:length(ind)
-    pm = [pm(1:ind(i)-1,:);f0mean;pm(ind(i):end,:)];
-end
-pm = 1./pm;
-pm = round(cumsum(pm)*8e3);
+% UNCOMMENT
+% for i=1:length(ind)
+%     pm = [pm(1:ind(i)-1,:);f0mean;pm(ind(i):end,:)];
+% end
+pm = round(8e3*[1/f0mean;1/f0mean+cumsum(1./pm)]);
 
 end
