@@ -1,4 +1,4 @@
-function [X_warp,Y_warp,pm_f] = lpcdtw(x,y,pm_x,pm_y,p,fs)
+function [X_warp,Y_warp,f_v] = lpcdtw(x,y,pm_x,pm_y,f1_x,f1_y,p)
 % [X,Y,index] = lpcdtw(x,y,pm_x,pm_y)
 %   Use dynamic programming to find the lowest-cost path between the
 %   x and y.
@@ -22,20 +22,17 @@ tfy = [leny analy skipy];
 X_lp = lpcauto(x,p,tfx); % LP analysis
 Y_lp = lpcauto(y,p,tfy);
 
-% voiced_x = strip_unv(x,pm_x); % UNCOMMENT
-% voiced_y = strip_unv(y,pm_y); % UNCOMMENT
+voiced_x = strip_unv(pm_x,f1_x(:,1)); % UNCOMMENT
+voiced_y = strip_unv(pm_y,f1_y(:,1)); % UNCOMMENT
+% disp([max(voiced_x),size(voiced_x,1),size(X_lp,1)]);
+voiced_x(end) = [];
+voiced_y(end) = [];
 
-
-% disp([length(pm_y),size(Y_lp,1)]);
-
-X_warp = X_lp;
-Y_warp = Y_lp;
-% X_warp(voiced_x,:) = []; % UNCOMMENT
-% Y_warp(voiced_y,:) = []; % UNCOMMENT
-% pm_x(voiced_x) = [];
-% pm_y(voiced_y) = [];
-pm_f = 1./diff(pm_y/fs); % f_0 for target speaker
-% pm_f(voiced_y) = []; % UNCOMMENT
+% X_warp = X_lp;
+% Y_warp = Y_lp;
+X_warp = X_lp(voiced_x,:); % UNCOMMENT
+Y_warp = Y_lp(voiced_y,:); % UNCOMMENT
+pm_y = pm_y(voiced_y);
 
 % Construct the 'local match' score matrix 
 SM = distitar(X_warp,Y_warp,'x');
@@ -57,6 +54,6 @@ end
 X_warp = X_warp(unique(p1),:);
 Y_warp = Y_warp(index,:);
 % pm_x = pm_x(unique(p1));
-% pm_y = pm_y(index);
-pm_f = pm_f(index);
+pm_y = pm_y(index);
+f_v = f1_y(pm_y,2);
 end

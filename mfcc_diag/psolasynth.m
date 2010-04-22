@@ -53,7 +53,7 @@ for i=2:nxfrms-1
     start = endp+1;
     endp = ep(i);
 %     disp([start,endp,size(filter(1,Y_lp(i,:),exct(start:endp),mem))]);
-    [y(start:endp),mem] = filter(1,Y_lp(i,:),exct(start:endp),mem); 
+    [y(start:endp),mem] = filter(1,Y_lp(i,:),exct(start:endp)); 
 end
 start = endp+1;
 endp = n_x;

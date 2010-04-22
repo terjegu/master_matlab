@@ -1,4 +1,4 @@
-function pm = conversion_pm(gm_obj,Y_mfcc,f0mean_all,ind,f0mean)
+function pm = conversion_pm(gm_obj,Y_mfcc,ind,f0mean,N_x)
 % pm = conversion_pm(gm_obj,Y_mfcc,pm_mean)
 % CONVERSION FUNCTION FOR f_0
 
@@ -22,12 +22,17 @@ for i=1:N
     end
     pm_conv(i) = temp;
 end
-pm = f0mean_all*exp(pm_conv);
+pm = f0mean*exp(pm_conv);
 
 % UNCOMMENT
+
+temp = f0mean*ones(N_x,1);
+temp(ind) = pm;
+
 % for i=1:length(ind)
 %     pm = [pm(1:ind(i)-1,:);f0mean;pm(ind(i):end,:)];
 % end
-pm = round(8e3*[1/f0mean;1/f0mean+cumsum(1./pm)]);
+pm = round(8e3*cumsum(1./temp));
+% pm = round(8e3*[1/f0mean;1/f0mean+cumsum(1./pm)]);
 
 end

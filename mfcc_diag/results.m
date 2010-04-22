@@ -14,7 +14,9 @@ pm_x = round(pm_x*fs);                                 % seconds to samples
 pm_y = round(pm_y*fs);
 
 [x,pm_x] = strip_sil(x,pm_x);
-[y,pm_y] = strip_sil(y,pm_y);pm_ydif = 1./diff(pm_y);
+[y,pm_y] = strip_sil(y,pm_y);
+pm_x(end) = [];
+pm_y(end) = [];
 
 p = 10;
 
@@ -51,14 +53,14 @@ pm_xdif = 1./(diff(pm_x/fs));
 pm_ydif = 1./(diff(pm_y/fs));
 pm_xdif = pm_xdif(unique(p1));              % modify f_0 instead of pm
 pm_ydif = pm_ydif(index); 
-pm_cdif = 1./diff(pm_conv/8e3);
+pm_cdif = 1./diff(pm_conv/fs);
 
 % N = length(pm_cdif);%min(length(pm_dif),length(pm_xdif)));
 e_c = abs(pm_cdif-pm_ydif);
 e_x = abs(pm_xdif-pm_ydif);
 disp('    mean(e_c) std(e_c) mean(e_x) std(e_x)     Hz');
 disp([mean(e_c) std(e_c) mean(e_x) std(e_x)]);
-disp([pm_cdif(1:200),pm_ydif(1:200)]);
+disp([pm_cdif(1:50),pm_ydif(1:50)]);
 
 %% Test Frequency Transform
 load('var/converted');

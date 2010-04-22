@@ -1,11 +1,11 @@
-function x_y = resynth(X_lp,X_lp_conv,wavfile,pm_conv)
+function [x_y,pm_y] = resynth(X_lp,X_lp_conv,wavfile,pm_conv)
 % y = resynth(X_lp,X_lp_conv,wavfile)
 
 [x,fs] = wavread(['../data/source_down/t01',wavfile,'.wav']); % source
 [pm_x,~] = textread(['../data/source_pm/t01',wavfile,'.pm'],'%f%f','headerlines',9);
 pm_x = round(pm_x*fs);                                 % seconds to samples
 [x,pm_x] = strip_sil(x,pm_x);
-
+pm_x(end) = [];
 %% to find pm_y
 p = 10;
 y = wavread(['../data/target_down/t03',wavfile,'.wav']); % target
@@ -51,17 +51,21 @@ pm_y = [pm_y(1);pm_y(1)+round(fs*cumsum(1./f_y))];
 Y_temp = Y_temp(index,:);
 % disp([pm_x,pm_y]);
 %%
+
 e_x = lpcifilt2(x,X_lp,pm_x);
-e_x = e_x-mean(e_x);
-% [x_y,e_xy] = psolasynth(e_x,pm_conv,pm_x,X_lp_conv);
-[x_y,e_xy] = psolasynth(e_x,pm_y,pm_x,Y_temp);
+% [x_y,e_xy] = psolasynth(e_x,pm_y,pm_x,X_lp_conv);
+[x_y,e_xy] = psolasynth(e_x,pm_conv,pm_x,X_lp_conv);
+% [x_y,e_xy] = psolasynth(e_x,pm_y,pm_x,Y_temp);
 % x_y = psolasynth(e_x,pm_conv,pm_x(1:length(pm_conv)),X_lp_conv);
 % x_y = lpcfilt2(e_x,X_lp_conv,pm_conv);
 
 x_y(x_y>0.4) = 0.4;
 x_y(x_y<-0.4) = -0.4;
 x_y = x_y-mean(x_y);
-
+% 
+% wavwrite(x,fs,'wav/demo_x');
+% wavwrite(y,fs,'wav/demo_y');
+% wavwrite(x_y,fs,'wav/demo_x_y');
 % soundsc(x,8e3);
 % soundsc(y,8e3);
 % soundsc(x_y,8e3);
@@ -79,5 +83,8 @@ title('Converted');
 subplot(414)
 plot(y);
 title('Target');
+
+figure(2)
+plot(x_y)
 
 end
