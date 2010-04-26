@@ -49,7 +49,7 @@ for i=3:N+2
         [x,pm_x,f1_x] = strip_sil(x,pm_x,f2_x,f0_x,fs);
         [y,pm_y,f1_y] = strip_sil(y,pm_y,f2_y,f0_y,fs);
         
-        [X_lp,Y_lp,fv_temp] = lpcdtw(x,y,pm_x,pm_y,f1_x,f1_y,p);
+        [X_lp,Y_lp,fv_temp] = lpcdtw(x,y,pm_x,pm_y,p,f1_x,f1_y);
         
         fn_x = size(X_lp,1);
         X_cc_temp = zeros(fn_x,p+3);

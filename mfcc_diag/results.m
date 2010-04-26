@@ -60,11 +60,11 @@ e_c = abs(pm_cdif-pm_ydif);
 e_x = abs(pm_xdif-pm_ydif);
 disp('    mean(e_c) std(e_c) mean(e_x) std(e_x)     Hz');
 disp([mean(e_c) std(e_c) mean(e_x) std(e_x)]);
-disp([pm_cdif(1:50),pm_ydif(1:50)]);
+% disp([pm_cdif(1:50),pm_ydif(1:50)]);
 
 %% Test Frequency Transform
 load('var/converted');
-% Read files
+
 wavfile = 's016804';
 [x,fs] = wavread(['../data/source_down/t01',wavfile,'.wav']); % source
 y = wavread(['../data/target_down/t03',wavfile,'.wav']); % target
@@ -72,29 +72,27 @@ y = wavread(['../data/target_down/t03',wavfile,'.wav']); % target
 [pm_y,~] = textread(['../data/target_pm/t03',wavfile,'.pm'],'%f%f','headerlines',9);
 pm_x = round(pm_x*fs);                                 % seconds to samples
 pm_y = round(pm_y*fs);
-
-[x,pm_x] = strip_sil(x,pm_x);
-[y,pm_y] = strip_sil(y,pm_y);
+[f0_x,f2_x,~,~] = textread(['../data/source_f0/t01',wavfile,'.tf0'],'%f%f%f%f');
+[f0_y,f2_y,~,~] = textread(['../data/target_f0/t03',wavfile,'.tf0'],'%f%f%f%f');
 
 p = 10;
+[x,pm_x,f1_x] = strip_sil(x,pm_x,f2_x,f0_x,fs);
+[y,pm_y,f1_y] = strip_sil(y,pm_y,f2_y,f0_y,fs);
+        
+[~,Y_lp] = lpcdtw_results(x,y,pm_x,pm_y,p);
+[X_lp2,Y_lp2] = lpcdtw(x,y,pm_x,pm_y,p,f1_x,f1_y);
+Y_cc = lpcar2cc(Y_lp2,13);
+X_cc = lpcar2cc(X_lp2,13);
 
-[X_lp,Y_lp] = lpcdtw(x,y,pm_x,pm_y,p,fs);
-
-X_lp_conv2 = lpccc2ar(X_cc_conv(:,1:p));
-X_rf = lpcar2rf(X_lp_conv2);
-X_rf(X_rf>=1) = 0.999;
-X_rf(X_rf<=-1) = -0.999;
-X_lp_conv2 = lpcrf2ar(X_rf);
-
-dist_itakura = distitar(Y_lp,X_lp_conv2,'d');
-[~,minindex] = min(dist_itakura);
+dist_itakura = distitar(Y_lp,X_lp_conv,'d');
 disp(['itakura distance before = ', num2str(mean(distitar(Y_lp,X_lp,'d')))]);
 disp(['itakura distance after = ', num2str(mean(dist_itakura))]);
 disp(['L2 norm before = ', num2str(l2norm(Y_lp,X_lp,fs))]);
-disp(['L2 norm after = ', num2str(l2norm(Y_lp,X_lp_conv2,fs))]);
-disp(['NCD = ', num2str(ncd(lpcar2cc(X_lp,13),X_cc_conv,lpcar2cc(Y_lp,13)))]);
+disp(['L2 norm after = ', num2str(l2norm(Y_lp,X_lp_conv,fs))]);
+disp(['NCD = ', num2str(ncd(X_cc,X_cc_conv,Y_cc))]);
 
 %% Plot one lpc frame
+[~,minindex] = min(dist_itakura);
 frame_num = minindex;
 N = 10*fs/1e3;
 NFFT = pow2(nextpow2(N));

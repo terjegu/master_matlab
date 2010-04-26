@@ -1,4 +1,4 @@
-function [X_warp,Y_warp,f_v] = lpcdtw(x,y,pm_x,pm_y,p,f1_x,f1_y)
+function [X_lp,Y_lp] = lpcdtw_results(x,y,pm_x,pm_y,p)
 % [X_warp,Y_warp,f_v] = lpcdtw(x,y,pm_x,pm_y,p,f1_x,f1_y)
 %   Use dynamic programming to find the lowest-cost path between the
 %   x and y.
@@ -22,20 +22,20 @@ tfy = [leny analy skipy];
 X_lp = lpcauto(x,p,tfx); % LP analysis
 Y_lp = lpcauto(y,p,tfy);
 
-voiced_x = strip_unv(pm_x,f1_x(:,1)); % UNCOMMENT
-voiced_y = strip_unv(pm_y,f1_y(:,1)); % UNCOMMENT
+% voiced_x = strip_unv(pm_x,f1_x(:,1)); % UNCOMMENT
+% voiced_y = strip_unv(pm_y,f1_y(:,1)); % UNCOMMENT
 % disp([max(voiced_x),size(voiced_x,1),size(X_lp,1)]);
-voiced_x(end) = [];
-voiced_y(end) = [];
+% voiced_x(end) = [];
+% voiced_y(end) = [];
 
 % X_warp = X_lp;
 % Y_warp = Y_lp;
-X_warp = X_lp(voiced_x,:); % UNCOMMENT
-Y_warp = Y_lp(voiced_y,:); % UNCOMMENT
-pm_y = pm_y(voiced_y);
+% X_warp = X_lp(voiced_x,:); % UNCOMMENT
+% Y_warp = Y_lp(voiced_y,:); % UNCOMMENT
+% pm_y = pm_y(voiced_y);
 
 % Construct the 'local match' score matrix 
-SM = distitar(X_warp,Y_warp,'x');
+SM = distitar(X_lp,Y_lp,'x');
 % SM = SM./(max(SM(:))+0.1);
 
 % Use dynamic programming to find the lowest-cost path
@@ -51,9 +51,8 @@ for i = n:m
 %     Y_warp(i-n+1,:) = mean(Y_lp(q1(p1==i),:),1); does not work with
 %     unvoiced
 end
-X_warp = X_warp(unique(p1),:);
-Y_warp = Y_warp(index,:);
+X_lp = X_lp(unique(p1),:);
+Y_lp = Y_lp(index,:);
 % pm_x = pm_x(unique(p1));
 pm_y = pm_y(index);
-f_v = f1_y(pm_y,2);
 end
