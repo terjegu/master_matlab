@@ -40,8 +40,7 @@ for i=2:nxfrms-1
     ep(i) = round(0.5*(pm_y(i)+pm_y(i+1)))-1;
 end
 
-% figure(2)
-% plot(exct)
+exct = exct-mean(exct); % Remove?
 
 % Now, the synthesis, using the generated excitation signal and the time
 % warped filter coefficient sequence

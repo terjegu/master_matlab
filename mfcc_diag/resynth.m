@@ -1,4 +1,4 @@
-function [x_y,pm_y] = resynth(X_lp,X_lp_conv,wavfile,pm_conv)
+function [x_y,e_xy] = resynth(X_lp,X_lp_conv,wavfile,pm_conv)
 % y = resynth(X_lp,X_lp_conv,wavfile)
 
 [x,fs] = wavread(['../data/source_down/t01',wavfile,'.wav']); % source
@@ -6,7 +6,8 @@ function [x_y,pm_y] = resynth(X_lp,X_lp_conv,wavfile,pm_conv)
 pm_x = round(pm_x*fs);                                 % seconds to samples
 [x,pm_x] = strip_sil(x,pm_x);
 pm_x(end) = [];
-%% to find pm_y
+
+% %% to find pm_y
 p = 10;
 y = wavread(['../data/target_down/t03',wavfile,'.wav']); % target
 [pm_y,~] = textread(['../data/target_pm/t03',wavfile,'.pm'],'%f%f','headerlines',9);
@@ -50,9 +51,10 @@ pm_x = [pm_x(1);pm_x(1)+round(fs*cumsum(1./f_x))];
 pm_y = [pm_y(1);pm_y(1)+round(fs*cumsum(1./f_y))];
 Y_temp = Y_temp(index,:);
 % disp([pm_x,pm_y]);
-%%
+% %%
 
 e_x = lpcifilt2(x,X_lp,pm_x);
+e_x = e_x-mean(e_x);
 % [x_y,e_xy] = psolasynth(e_x,pm_y,pm_x,X_lp_conv);
 [x_y,e_xy] = psolasynth(e_x,pm_conv,pm_x,X_lp_conv);
 % [x_y,e_xy] = psolasynth(e_x,pm_y,pm_x,Y_temp);
@@ -84,7 +86,21 @@ subplot(414)
 plot(y);
 title('Target');
 
-figure(2)
-plot(x_y)
+L = length(y);
+NFFT = 2^nextpow2(L); % Next power of 2 from length of y
+X_f = fft(x,NFFT)/L;
+Y_f = fft(y,NFFT)/L;
+Xc_f = fft(x_y,NFFT)/L;
+f = fs/2*linspace(0,1,NFFT/2+1);
 
+figure(2)
+subplot(311);
+plot(f,20*log10(abs(X_f(1:NFFT/2+1))));
+title('Source');
+subplot(312);
+plot(f,20*log10(abs(Xc_f(1:NFFT/2+1)))); 
+title('Converted');
+subplot(313);
+plot(f,20*log10(abs(Y_f(1:NFFT/2+1))));
+title('Target');
 end

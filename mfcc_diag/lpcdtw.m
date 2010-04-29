@@ -24,7 +24,6 @@ Y_lp = lpcauto(y,p,tfy);
 
 voiced_x = strip_unv(pm_x,f1_x(:,1)); % UNCOMMENT
 voiced_y = strip_unv(pm_y,f1_y(:,1)); % UNCOMMENT
-% disp([max(voiced_x),size(voiced_x,1),size(X_lp,1)]);
 voiced_x(end) = [];
 voiced_y(end) = [];
 
