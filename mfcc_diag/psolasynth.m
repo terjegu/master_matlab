@@ -35,12 +35,11 @@ for i=2:nxfrms-1
     ee = e_x(pm_x(i-1):pm_x(i+1)-1);
     start = max(round(pm_y(i)-length(ee)/2),1);
     endp = min(round(pm_y(i)+length(ee)/2-1),n_x);
-%     disp([start,endp,pm_y(i)]);
     exct(start:endp) = exct(start:endp)+hamming(endp-start+1).*ee(1:endp-start+1);  
     ep(i) = round(0.5*(pm_y(i)+pm_y(i+1)))-1;
 end
 
-exct = exct-mean(exct); % Remove?
+% exct = exct-mean(exct); % Remove?
 
 % Now, the synthesis, using the generated excitation signal and the time
 % warped filter coefficient sequence
@@ -51,7 +50,6 @@ endp = ep(1);
 for i=2:nxfrms-1
     start = endp+1;
     endp = ep(i);
-%     disp([start,endp,size(filter(1,Y_lp(i,:),exct(start:endp),mem))]);
     [y(start:endp),mem] = filter(1,Y_lp(i,:),exct(start:endp)); 
 end
 start = endp+1;

@@ -1,4 +1,4 @@
-function [x_y,e_xy] = resynth(X_lp,X_lp_conv,wavfile,pm_conv)
+function [x_y,e_xy,e_x] = resynth(X_lp,X_lp_conv,wavfile,pm_conv)
 % y = resynth(X_lp,X_lp_conv,wavfile)
 
 [x,fs] = wavread(['../data/source_down/t01',wavfile,'.wav']); % source
@@ -54,7 +54,7 @@ Y_temp = Y_temp(index,:);
 % %%
 
 e_x = lpcifilt2(x,X_lp,pm_x);
-e_x = e_x-mean(e_x);
+% e_x = e_x-mean(e_x);
 % [x_y,e_xy] = psolasynth(e_x,pm_y,pm_x,X_lp_conv);
 [x_y,e_xy] = psolasynth(e_x,pm_conv,pm_x,X_lp_conv);
 % [x_y,e_xy] = psolasynth(e_x,pm_y,pm_x,Y_temp);

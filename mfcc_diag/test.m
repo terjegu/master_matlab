@@ -52,14 +52,46 @@ disp([pm_x,pm_2,pm_3]);
 disp([mean(abs(pm_x-pm_2)),std(abs(pm_x-pm_2))]);
 disp([mean(abs(pm_x-pm_3)),std(abs(pm_x-pm_3))]);
 
-%%
-L = 40;
-Fu = 8e3;
-bnd = (0:L)*Fu/L;
-fdelta = zeros(1,L);
-for i=1:L
-    fdelta(i) = bnd(i+1)-bnd(i);
-end
-fdelta2 = diff(bnd);
+%% TEST CC2LPSPEC transform
+clear all;
+close all;
+% clc;
+load('var/converted');
+x_ar = X_lp(1,:);
+x_cc = lpcar2cc(x_ar,13);
 
-isequal(fdelta2,fdelta)
+x_ar2 = lpccc2ar(x_cc);
+x_ar2 = x_ar2(1:11);
+
+x_ar3 = cc2lpspec2(x_cc',513);
+
+disp([distitar(x_ar,x_ar2,'d'),distitar(x_ar,x_ar3,'d')]);
+
+%% TEST STABILITY
+clear all;
+close all;
+clc;
+load('var/converted');
+x_cc = X_cc_conv(2,:);
+x_ar = lpccc2ar(x_cc);
+x_ar = x_ar(1:11);
+
+x_ar2 = cc2lpspec2(x_cc');
+
+disp([max(abs(lpcar2rf(x_ar))),max(abs(lpcar2rf(x_ar2)))]);
+
+%% TEST STABILITY
+clear all;
+close all;
+clc;
+load('var/converted');
+x_cc = X_cc_conv;
+x_ar = lpccc2ar(x_cc);
+x_ar = x_ar(:,1:11);
+
+x_ar2 = cc2lpspec2(x_cc);
+
+x_rf = lpcar2rf(x_ar);
+x_rf2 = lpcar2rf(x_ar2);
+
+disp([numel(find(abs(x_rf(:))>1)),numel(find(abs(x_rf2(:))>1))]);

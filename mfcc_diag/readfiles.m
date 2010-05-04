@@ -23,6 +23,7 @@ list_tf0 = dir(target_f0_path);
 
 fs = 8e3;                       % Sampling frequency
 p = 10;                         % LPC order (Fs/1000)
+p_cc = p+5;                     % CC order
 X_cc = [];                      % Feature matrix used in training
 Y_cc = [];                      % Feature matrix used in training
 f_v = [];                       % F_0 for target vectors
@@ -50,8 +51,8 @@ for i=3:N+2
         
         [X_lp,Y_lp,fv_temp] = lpcdtw(x,y,pm_x,pm_y,p,f1_x,f1_y);
         
-        X_cc_temp = lpcar2cc(X_lp,p+3);     % Convert LP to CC
-        Y_cc_temp = lpcar2cc(Y_lp,p+3);     % Convert LP to CC
+        X_cc_temp = lpcar2cc(X_lp,p_cc);     % Convert LP to CC
+        Y_cc_temp = lpcar2cc(Y_lp,p_cc);     % Convert LP to CC
 
         % Add to matrix
         X_cc = [X_cc;X_cc_temp];

@@ -1,9 +1,10 @@
 %% TEST SCRIPT
+
+%% Test Pitch Transform
 clear all;
 close all;
 clc;
 
-%% Test Pitch Transform
 load('var/pm_conv');
 wavfile = 's016804';
 [x,fs] = wavread(['../data/source_down/t01',wavfile,'.wav']); % source
@@ -42,7 +43,6 @@ SM = distitar(X_temp,Y_temp,'x');
 
 [p1,q1] = dp(SM);
 
-% disp([size(unique(p1),1),size(unique(q1),1)]);
 m = max(p1);
 n = min(p1);
 index = zeros(m-n,1);
@@ -63,6 +63,9 @@ disp([mean(e_c) std(e_c) mean(e_x) std(e_x)]);
 % disp([pm_cdif(1:50),pm_ydif(1:50)]);
 
 %% Test Frequency Transform
+clear all;
+close all;
+clc;
 load('var/converted');
 
 wavfile = 's016804';
@@ -76,19 +79,20 @@ pm_y = round(pm_y*fs);
 [f0_y,f2_y,~,~] = textread(['../data/target_f0/t03',wavfile,'.tf0'],'%f%f%f%f');
 
 p = 10;
+p_cc = p+3;
 [x,pm_x,f1_x] = strip_sil(x,pm_x,f2_x,f0_x,fs);
 [y,pm_y,f1_y] = strip_sil(y,pm_y,f2_y,f0_y,fs);
         
-[~,Y_lp] = lpcdtw_results(x,y,pm_x,pm_y,p);
-[X_lp2,Y_lp2] = lpcdtw(x,y,pm_x,pm_y,p,f1_x,f1_y);
-Y_cc = lpcar2cc(Y_lp2,13);
-X_cc = lpcar2cc(X_lp2,13);
+[X_lp,Y_lp] = lpcdtw_results(x,y,pm_x,pm_y,p,f1_x,f1_y);
+% [X_lp2,Y_lp2] = lpcdtw(x,y,pm_x,pm_y,p,f1_x,f1_y);
+Y_cc = lpcar2cc(Y_lp,p_cc);
+X_cc = lpcar2cc(X_lp,p_cc);
 
-dist_itakura = distitar(Y_lp,X_lp_conv,'d');
+dist_itakura = distitar(Y_lp,X_lp_test,'d');
 disp(['itakura distance before = ', num2str(mean(distitar(Y_lp,X_lp,'d')))]);
 disp(['itakura distance after = ', num2str(mean(dist_itakura))]);
 disp(['L2 norm before = ', num2str(l2norm(Y_lp,X_lp,fs))]);
-disp(['L2 norm after = ', num2str(l2norm(Y_lp,X_lp_conv,fs))]);
+disp(['L2 norm after = ', num2str(l2norm(Y_lp,X_lp_test,fs))]);
 disp(['NCD = ', num2str(ncd(X_cc,X_cc_conv,Y_cc))]);
 
 %% Plot one lpc frame
@@ -113,3 +117,77 @@ ylabel('dB');
 axis(p_axis);
 legend('Source','Target','Converted');
 
+
+%%
+clear all;
+close all;
+clc;
+load('var/converted');
+load('var/pm_conv');
+
+wavfile = 's016804';
+[x,fs] = wavread(['../data/source_down/t01',wavfile,'.wav']); % source
+y = wavread(['../data/target_down/t03',wavfile,'.wav']); % target
+[pm_x,~] = textread(['../data/source_pm/t01',wavfile,'.pm'],'%f%f','headerlines',9);
+[pm_y,~] = textread(['../data/target_pm/t03',wavfile,'.pm'],'%f%f','headerlines',9);
+pm_x = round(pm_x*fs);                                 % seconds to samples
+pm_y = round(pm_y*fs);
+[f0_x,f2_x,~,~] = textread(['../data/source_f0/t01',wavfile,'.tf0'],'%f%f%f%f');
+[f0_y,f2_y,~,~] = textread(['../data/target_f0/t03',wavfile,'.tf0'],'%f%f%f%f');
+
+p = 10;
+p_cc = p+3;
+[x,pm_x,f1_x] = strip_sil(x,pm_x,f2_x,f0_x,fs);
+[y,pm_y,f1_y] = strip_sil(y,pm_y,f2_y,f0_y,fs);
+        
+[X_lp,Y_lp,f_x,f_y] = lpcdtw_results(x,y,pm_x,pm_y,p,f1_x,f1_y);
+f_c = 1./diff(pm_test/fs);
+e_c = abs(f_c-f_y(1:end-1));
+e_x = abs(f_x(1:end-1)-f_y(1:end-1));
+disp('    mean(e_c) std(e_c) mean(e_x) std(e_x)     Hz');
+disp([mean(e_c) std(e_c) mean(e_x) std(e_x)]);
+
+%% Histogram of LPC excluding 1st coeff.
+clear all;
+close all;
+clc;
+load('var/converted');
+
+p = 10;
+N = 100; % number of containers
+
+[x,fs] = wavread(['../data/source_down/t01',wavfile,'.wav']); % source
+y = wavread(['../data/target_down/t03',wavfile,'.wav']); % target
+[pm_x,~] = textread(['../data/source_pm/t01',wavfile,'.pm'],'%f%f','headerlines',9);
+[pm_y,~] = textread(['../data/target_pm/t03',wavfile,'.pm'],'%f%f','headerlines',9);
+[f0_x,f2_x,~,~] = textread(['../data/source_f0/t01',wavfile,'.tf0'],'%f%f%f%f');
+[f0_y,f2_y,~,~] = textread(['../data/target_f0/t03',wavfile,'.tf0'],'%f%f%f%f');
+
+pm_x = round(pm_x*fs);                          % seconds to samples
+pm_y = round(pm_y*fs);
+
+[x,pm_x,f1_x] = strip_sil(x,pm_x,f2_x,f0_x,fs);
+[y,pm_y,f1_y] = strip_sil(y,pm_y,f2_y,f0_y,fs);
+
+[X_lp,Y_lp,fv_temp] = lpcdtw(x,y,pm_x,pm_y,p,f1_x,f1_y);
+
+X_source = X_lp(:,2:end);
+X_conv = X_lp_test(:,2:end);
+Y_target = Y_lp(:,2:end);
+
+figure
+subplot(311);
+[X,xout] = hist(X_source(:),N);          % Source
+bar(xout,X)
+x_hist = findobj(gca,'Type','patch');
+set(x_hist,'FaceColor','g','EdgeColor','g')
+title('Source');
+subplot(312)
+[Y,yout] = hist(Y_target(:),xout);       % Target
+bar(yout,Y);
+y_hist = findobj(gca,'Type','patch');
+set(y_hist,'FaceColor','r','EdgeColor','r')
+title('Target');
+subplot(313)
+[X_c,xcout] = hist(X_conv(:),xout);	% Converted
+bar(xcout,X_c);

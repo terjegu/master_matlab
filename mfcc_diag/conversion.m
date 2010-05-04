@@ -1,4 +1,4 @@
-function [X_lp,X_lp_conv,X_cc_conv,ind_pm] = conversion(gm_obj,V,Gamma,sigma_diag,wavfile)
+function [X_lp,X_lp_conv,X_cc_conv,ind_pm,X_lp_test] = conversion(gm_obj,V,Gamma,sigma_diag,wavfile)
 % d = conversion2(gm_obj,V,Gamma,wavfile)
 % CONVERSION FUNCTION
 
@@ -13,6 +13,7 @@ pm_x = round(pm_x*fs);                                 % seconds to samples
 [x,pm_x,f1_x] = strip_sil(x,pm_x,f2_x,f0_x,fs);
 
 p = 10;                         % LPC order
+p_cc = gm_obj.NDimensions;
 nx = length(x);
 nfx = length(pm_x);
 
@@ -27,20 +28,15 @@ ind_pm = strip_unv(pm_x,f1_x(:,1)); % UNCOMMENT
 ind_pm(end) = [];
 X_temp = X_lp(ind_pm,:); % UNCOMMENT
 
-
-X_cc = lpcar2cc(X_temp);    % Convert LPC to CC
+X_cc = lpcar2cc(X_temp,p_cc);    % Convert LPC to CC
 fn = size(X_temp,1);
-% X_cc = zeros(fn,p);
-% for i=1:fn
-%     X_cc(i,:) = lpcar2cc(X_temp(i,:),p);
-% end
 
 P = posterior(gm_obj,X_cc); % Posterior probability
 
 % Conversion function
-X_cc_conv = zeros(fn,p);
+X_cc_conv = zeros(fn,p_cc);
 for i=1:fn
-    for k=1:p
+    for k=1:p_cc
         X_cc_conv(i,k) = sum(P(i,:).*(Gamma(:,k).*(X_cc(i,k)-...
             gm_obj.mu(:,k)).*sigma_diag(:,k)+V(:,k))');
     end
@@ -49,18 +45,14 @@ temp_ar = lpccc2ar(X_cc_conv); % Constrain stability
 temp_rf = lpcar2rf(temp_ar);
 temp_rf(temp_rf>=1) = 0.999;
 temp_rf(temp_rf<=-1) = -0.999;
-X_lp_conv = lpcrf2ar(temp_rf);
-X_cc_conv = lpcar2cc(X_lp_conv);
-% temp_ar = lpcrf2ar(temp_rf);
-% X_cc_conv = lpcar2cc(temp_ar);
-% X_lp_conv = lpccc2ar(X_cc_conv(:,1:10));
+temp_ar = lpcrf2ar(temp_rf);
+X_cc_conv = lpcar2cc(temp_ar);
 
+X_lp_conv = cc2lpspec2(X_cc_conv,513,10,fs);
+
+X_lp_test = X_lp_conv;
 temp = X_lp;
 temp(ind_pm,:) = X_lp_conv;
 X_lp_conv = temp;
 
-% X_rf = lpcar2rf(X_lp_conv);
-% X_rf(X_rf>=1) = 0.999;
-% X_rf(X_rf<=-1) = -0.999;
-% X_lp_conv = lpcrf2ar(X_rf);
 end

@@ -1,15 +1,15 @@
-function pm = conversion_pm(gm_obj,Y_mfcc,ind,f0mean,N_x)
-% pm = conversion_pm(gm_obj,Y_mfcc,pm_mean)
+function [pm,pm_test] = conversion_pm(gm_obj,Y_cc,ind,f0mean,N_x)
+% pm = conversion_pm(gm_obj,Y_cc,pm_mean)
 % CONVERSION FUNCTION FOR f_0
 
 % Terje Gundersen 13.10.2009
 
 
 
-[N,p] = size(Y_mfcc);
+[N,p] = size(Y_cc);
 
 gm_obj_y = gmdistribution(gm_obj.mu(:,1:p),gm_obj.Sigma(1:p,1:p,:),gm_obj.PComponents);
-P = posterior(gm_obj_y,Y_mfcc); % Posterior probability of Y_mfcc
+P = posterior(gm_obj_y,Y_cc); % Posterior probability of Y_cc
 
 m = gm_obj.NComponents;
 pm_conv = zeros(N,1);
@@ -18,14 +18,14 @@ for i=1:N
     for j = 1:m
         temp = temp + P(i,j)*(gm_obj.mu(j,1+p)+...
             gm_obj.Sigma(1+p,1:p,j)/gm_obj.Sigma(1:p,1:p,j)*...
-            (Y_mfcc(i,:)-gm_obj.mu(j,1:p))');
+            (Y_cc(i,:)-gm_obj.mu(j,1:p))');
     end
     pm_conv(i) = temp;
 end
 pm = f0mean*exp(pm_conv);
 
 % UNCOMMENT
-
+pm_test = pm;
 temp = f0mean*ones(N_x,1);
 temp(ind) = pm;
 
