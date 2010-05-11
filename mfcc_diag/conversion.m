@@ -6,6 +6,8 @@ function [X_lp,X_lp_conv,X_cc_conv,ind_pm,X_lp_test] = conversion(gm_obj,V,Gamma
 
 % Read files
 [x,fs] = wavread(['../data/source_down/t01',wavfile,'.wav']); % source
+x = x*pow2(15);                                        % prevent underflow
+x = filter(1,[1,0.97],x);                      % pre-emphasis
 [pm_x,~] = textread(['../data/source_pm/t01',wavfile,'.pm'],'%f%f','headerlines',9);
 [f0_x,f2_x,~,~] = textread(['../data/source_f0/t01',wavfile,'.tf0'],'%f%f%f%f');
 pm_x = round(pm_x*fs);                                 % seconds to samples

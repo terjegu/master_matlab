@@ -1,4 +1,4 @@
-function [y,exct]=psolasynth(e_x,pm_y,pm_x,Y_lp)
+function [y,exct]=psolasynth(e_x,pm_y,pm_x,Y_lp,voiced)
 % [y,exct]=psolasynth(e_x,pm_y,pm_x,Y_lp)
 % 
 % Synthesizes a signal by source/filter synthesis. A source signal,
@@ -33,8 +33,13 @@ ep(1) = round(0.5*(pm_y(1)+pm_y(2)))-1;
 % Same procedure as above for all subsequent pitch periods
 for i=2:nxfrms-1
     ee = e_x(pm_x(i-1):pm_x(i+1)-1);
-    start = max(round(pm_y(i)-length(ee)/2),1);
-    endp = min(round(pm_y(i)+length(ee)/2-1),n_x);
+    if ismember(i,voiced)
+        start = max(round(pm_y(i)-length(ee)/2),1);
+        endp = min(round(pm_y(i)+length(ee)/2-1),n_x);
+    else
+%         start = somthing for unvoiced frames
+%         endphe = somthing for unvoiced frames
+    end
     exct(start:endp) = exct(start:endp)+hamming(endp-start+1).*ee(1:endp-start+1);  
     ep(i) = round(0.5*(pm_y(i)+pm_y(i+1)))-1;
 end

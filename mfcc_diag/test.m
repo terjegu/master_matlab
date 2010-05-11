@@ -1,14 +1,14 @@
 clear all;
 close all;
 clc;
-% 
-% %%
-% 
-wavfile = 's000997';
+load('var/converted');
+% load('var/pm_conv');
+
 [x,fs] = wavread(['../data/source_down/t01',wavfile,'.wav']); % source
 y = wavread(['../data/target_down/t03',wavfile,'.wav']); % source
 p = 10;
-% 
+x = x*2^15;
+
 [pm_x,~] = textread(['../data/source_pm/t01',wavfile,'.pm'],'%f%f','headerlines',9);
 [f0_x,f2_x,~,~] = textread(['../data/source_f0/t01',wavfile,'.tf0'],'%f%f%f%f');
 [pm_y,~] = textread(['../data/target_pm/t03',wavfile,'.pm'],'%f%f','headerlines',9);
@@ -20,25 +20,48 @@ pm_y = round(pm_y*fs);
 [x,pm_x,f1_x] = strip_sil(x,pm_x,f2_x,f0_x,fs);
 [y,pm_y,f1_y] = strip_sil(y,pm_y,f2_y,f0_y,fs);
 
-for i=1:size(f1_x,1)
-    if f1_x(i,1)==1 && f1_x(i,2) ==0
-        disp([i,f1_x(i,:)]);
-    end
+
+[X_lp,Y_lp,~,~,pm_x,pm_y] = lpcdtw_results(x,y,pm_x,pm_y,p,f1_x,f1_y);
+train = 0.02*randn(size(x));
+% train = zeros(size(x));
+% num = 1:80:length(x);
+% train(num) = 0.05;
+
+% X_lp = X_lp_conv;
+
+% pm_x = pm_y;
+e_x = lpcifilt2(x,X_lp,pm_x);
+train = e_x;
+% X_lp = X_lp_conv;
+% X_lp = Y_lp;
+% pm_x = pm_y;
+% [x_y,e_xy] = psolasynth(e_x,pm_y,pm_x,X_lp_conv);
+x_y = zeros(size(train));
+start = 1;
+endp = round(0.5*(pm_x(1)+pm_x(2)))-1;
+[x_y(start:endp),mem] = filter(1,X_lp(1,:),train(start:endp)); 
+for i=2:size(X_lp,1)-1
+    start = endp+1;
+    endp = round(0.5*(pm_x(i)+pm_x(i+1)))-1;
+    [x_y(start:endp),mem] = filter(1,X_lp(i,:),train(start:endp),mem); 
 end
+start = endp+1;
+endp = length(train);
+x_y(start:endp) = filter(1,X_lp(size(X_lp,1),:),train(start:endp),mem);
 
-[X_lp,Y_lp,fv_temp] = lpcdtw(x,y,pm_x,pm_y,p,f1_x,f1_y);
+x_y = x_y*2^-15;
+% x_y(x_y>0.4) = 0.4;
+% x_y(x_y<-0.4) = -0.4;
+% x_y = x_y-mean(x_y);
 
-% disp(numel(fv_temp(fv_temp==0)));
 
-% test = x;
-% test(f1_x(:,1)==1) = NaN;
 % figure
-% plot(x)
-% hold on;
-% plot(test,'r')
-% pm_f = 1./diff(pm_x/fs); % f_0 for target speaker
-% pm_f(voiced_x)
-% disp([pm_f(1:30)]);
+% subplot(211);
+% plot(x);
+% subplot(212)
+% plot(x_y);
+wavwrite(x_y,8e3,'wav/test_x2');
+
 %%
 f_0 = 1./diff(pm_x/fs);
 f_02 = 1./gradient(pm_x/fs);
@@ -80,18 +103,40 @@ x_ar2 = cc2lpspec2(x_cc');
 
 disp([max(abs(lpcar2rf(x_ar))),max(abs(lpcar2rf(x_ar2)))]);
 
-%% TEST STABILITY
+%% TEST conversion_pm
 clear all;
 close all;
 clc;
-load('var/converted');
-x_cc = X_cc_conv;
-x_ar = lpccc2ar(x_cc);
-x_ar = x_ar(:,1:11);
+load('var/gmm_pm64_2');
+gm_f02 = gm_f0;
+f0mean2 = f0mean;
+load('var/gmm_pm64');
+load('var/wavfiles');
 
-x_ar2 = cc2lpspec2(x_cc);
+N = 10;
+f0_test = conversion_pm_test(gm_f0,Y_cc(1:N,2:end),f0mean);
+f0_test2 = conversion_pm2_test(gm_f02,Y_cc(1:N,2:end),f0mean2);
 
-x_rf = lpcar2rf(x_ar);
-x_rf2 = lpcar2rf(x_ar2);
+figure(1)
+subplot(311)
+plot(f0(1:N));
+subplot(312)
+plot(f0_test,'r');
+subplot(313)
+plot(f0(1:N));
+hold on;
+plot(f0_test,'r');
 
-disp([numel(find(abs(x_rf(:))>1)),numel(find(abs(x_rf2(:))>1))]);
+figure(2)
+subplot(311)
+plot(f0(1:N));
+subplot(312)
+plot(f0_test2,'r');
+subplot(313)
+plot(f0(1:N));
+hold on;
+plot(f0_test2,'r');
+
+delta = abs(f0(1:N)-f0_test);
+delta2 = abs(f0(1:N)-f0_test2);
+disp([mean(delta),std(delta),mean(delta2),std(delta2)]);

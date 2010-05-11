@@ -1,4 +1,4 @@
-function [pm,temp] = conversion_pm(gm_obj,Y_cc,ind,f0mean,N_x)
+function f0 = conversion_pm_test(gm_obj,Y_cc,f0mean)
 % pm = conversion_pm(gm_obj,Y_cc,pm_mean)
 % CONVERSION FUNCTION FOR f_0
 
@@ -26,11 +26,11 @@ end
 f0 = f0mean*exp(f0_conv);
 
 % Insert unvoiced
-temp = f0mean*ones(N_x,1);
-temp(ind) = f0;
+% temp = f0mean*ones(N_x,1);
+% temp(ind) = f0;
 
 % f0 to pitch markings
-pm = round(8e3*cumsum(1./temp));
+% pm = round(8e3*cumsum(1./temp));
 % pm_test = round(8e3*cumsum(1./f0_test));
 
 end

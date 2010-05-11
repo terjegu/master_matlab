@@ -23,17 +23,22 @@ list_tf0 = dir(target_f0_path);
 
 fs = 8e3;                       % Sampling frequency
 p = 10;                         % LPC order (Fs/1000)
-p_cc = p+5;                     % CC order
+p_cc = p+3;                     % CC order
 X_cc = [];                      % Feature matrix used in training
 Y_cc = [];                      % Feature matrix used in training
 f_v = [];                       % F_0 for target vectors
+alpha = 0.97;
 
 for i=3:N+2
     filename_x = {list_s(i,1).name};
     filename_y = {list_t(i,1).name};
     if strcmp(filename_x{1}(1,4:end),filename_y{1}(1,4:end))
         x = wavread([source_path,'/',filename_x{1}]);	% Read wav file
-        y = wavread([target_path,'/',filename_y{1}]);	
+        y = wavread([target_path,'/',filename_y{1}]);
+        x = x*pow2(15);                                 % prevent underflow
+        y = y*pow2(15);
+        x = filter(1,[1,alpha],x);                      % pre-emphasis
+        y = filter(1,[1,alpha],y);
         filename_xpm = {list_spm(i,1).name};            % Read pitch samples [s]
         filename_ypm = {list_tpm(i,1).name};            
         [pm_x,~] = textread([source_pm_path,'/',filename_xpm{1}],'%f%f','headerlines',9);
