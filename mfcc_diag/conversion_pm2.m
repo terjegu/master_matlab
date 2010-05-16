@@ -1,4 +1,4 @@
-function [pm,temp] = conversion_pm2(gm_obj,Y_cc,ind,f0mean,N_x)
+function [pm,f0] = conversion_pm2(gm_obj,Y_cc,ind,f0mean,N_x)
 % pm = conversion_pm(gm_obj,Y_cc,pm_mean)
 % CONVERSION FUNCTION FOR f_0
 

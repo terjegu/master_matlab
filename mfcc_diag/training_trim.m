@@ -1,9 +1,11 @@
-function [V,Gamma,sigma_diag] = training(gm_obj,X_cc,Y_cc,N)
+function [V,Gamma,sigma_diag] = training_trim(gm_obj,X_cc,Y_cc,N)
 % [V,Gamma,sigma_diag] = training(gm_obj,X_cc,Y_cc,N)
 
 % Terje Gundersen 29.10.2009
 
-if nargin < 4, N = size(X_cc,1); end      % Number of training vectors
+if nargin < 4
+    N = size(X_cc,1);          % Number of training vectors
+end
 
 % Compute V and Gamma
 p = gm_obj.NDimensions;

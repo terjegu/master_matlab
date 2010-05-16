@@ -37,8 +37,6 @@ for i=3:N+2
         y = wavread([target_path,'/',filename_y{1}]);
         x = x*pow2(15);                                 % prevent underflow
         y = y*pow2(15);
-        x = filter(1,[1,alpha],x);                      % pre-emphasis
-        y = filter(1,[1,alpha],y);
         filename_xpm = {list_spm(i,1).name};            % Read pitch samples [s]
         filename_ypm = {list_tpm(i,1).name};            
         [pm_x,~] = textread([source_pm_path,'/',filename_xpm{1}],'%f%f','headerlines',9);
@@ -53,6 +51,9 @@ for i=3:N+2
         
         [x,pm_x,f1_x] = strip_sil(x,pm_x,f2_x,f0_x,fs);
         [y,pm_y,f1_y] = strip_sil(y,pm_y,f2_y,f0_y,fs);
+        
+        x = filter(1,[1,alpha],x);                      % pre-emphasis
+        y = filter(1,[1,alpha],y);
         
         [X_lp,Y_lp,fv_temp] = lpcdtw(x,y,pm_x,pm_y,p,f1_x,f1_y);
         

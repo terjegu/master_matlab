@@ -1,10 +1,8 @@
-function [pm,temp] = conversion_pm(gm_obj,Y_cc,ind,f0mean,N_x)
+function [pm,f0_t] = conversion_pm(gm_obj,Y_cc,ind,f0mean,N_x)
 % pm = conversion_pm(gm_obj,Y_cc,pm_mean)
 % CONVERSION FUNCTION FOR f_0
 
 % Terje Gundersen 13.10.2009
-
-
 
 [N,p] = size(Y_cc);
 
@@ -25,9 +23,14 @@ for i=1:N
 end
 f0 = f0mean*exp(f0_conv);
 
+% L=3;
+% f0_t = filter(ones(L,1)/L,1,f0);
+% f0_t(1:L-1) = f0(1:L-1);
+f0_t = f0; % COMMENT OUT
+
 % Insert unvoiced
 temp = f0mean*ones(N_x,1);
-temp(ind) = f0;
+temp(ind) = f0_t;
 
 % f0 to pitch markings
 pm = round(8e3*cumsum(1./temp));

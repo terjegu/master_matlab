@@ -113,30 +113,82 @@ f0mean2 = f0mean;
 load('var/gmm_pm64');
 load('var/wavfiles');
 
-N = 10;
+N = 250;
 f0_test = conversion_pm_test(gm_f0,Y_cc(1:N,2:end),f0mean);
 f0_test2 = conversion_pm2_test(gm_f02,Y_cc(1:N,2:end),f0mean2);
+% 
+% figure(1)
+% subplot(311)
+% plot(f0(1:N));
+% subplot(312)
+% plot(f0_test,'r');
+% subplot(313)
+% plot(f0(1:N));
+% hold on;
+% plot(f0_test,'r');
+% 
+% figure(2)
+% subplot(311)
+% plot(f0(1:N));
+% subplot(312)
+% plot(f0_test2,'r');
+% subplot(313)
+% plot(f0(1:N));
+% hold on;
+% % plot(f0_test2,'r');
+%% 
+L=3;
+f0_test3 = filter(ones(L,1)/L,1,f0_test);
+f0_test3(1:L-1) = f0_test(1:L-1);
+% figure(3)
+% subplot(311)
+% plot(f0_test(1:N));
+% subplot(312)
+% plot(f0_test3,'r');
+% subplot(313)
+% plot(f0(1:N));
+% hold on;
+% plot(f0_test3,'r');
 
-figure(1)
-subplot(311)
-plot(f0(1:N));
-subplot(312)
-plot(f0_test,'r');
-subplot(313)
-plot(f0(1:N));
-hold on;
-plot(f0_test,'r');
-
-figure(2)
-subplot(311)
-plot(f0(1:N));
-subplot(312)
-plot(f0_test2,'r');
-subplot(313)
-plot(f0(1:N));
-hold on;
-plot(f0_test2,'r');
+a = [0 250 60 140];
+figure(4)
+subplot(411)
+plot(f0_test);
+title('No smoothing');
+ylabel('F_0(n) [Hz]');
+axis(a);
+subplot(412)
+plot(f0_test2);
+title('Smoothing applied');
+ylabel('F_0(n) [Hz]');
+axis(a);
+subplot(413)
+plot(f0_test3);
+title('Moving average, M=2');
+% xlabel('Frame number');
+ylabel('F_0(n) [Hz]');
+axis(a);
+subplot(414)
+plot(f0(1:250),'r');
+title('Target');
+xlabel('Frame number');
+ylabel('F_0(n) [Hz]');
+axis(a);
 
 delta = abs(f0(1:N)-f0_test);
 delta2 = abs(f0(1:N)-f0_test2);
-disp([mean(delta),std(delta),mean(delta2),std(delta2)]);
+% delta2 = 0;
+delta3 = abs(f0(1:N)-f0_test3);
+disp('mean_1 std_1   mean_2 std_2   mean_3 std_3')
+disp([mean(delta),std(delta),mean(delta2),std(delta2),mean(delta3),std(delta3)]);
+
+%%
+
+% data = (1:0.2:4).';
+L = 5;
+[y,h] = freqz(ones(L,1)/L,1,1024,8e3);
+
+figure
+plot(h/1e3,10*log10(abs(y)))
+xlabel('kHz');
+ylabel('|H(f)| [dB]');
