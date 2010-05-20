@@ -11,8 +11,8 @@ Nfrms = size(c,1);
 r = zeros(L,Nfrms);          % Autocorrelation
 a = zeros(p+1,Nfrms);        % LPC coefficients
 
-logspec2 = lpccc2pf(c,L-2);        % CC --> S_xx
-spec = logspec2';       % log(S_xx) --> S_xx
+logspec2 = lpccc2pf(c,L-2,size(c,2));  % CC --> S_xx
+spec = logspec2';            % log(S_xx) --> S_xx
 
 Fu = Fs/2;
 bnd = (0:L)*Fu/L;            % equisized bins

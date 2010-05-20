@@ -185,10 +185,10 @@ disp([mean(delta),std(delta),mean(delta2),std(delta2),mean(delta3),std(delta3)])
 %%
 
 % data = (1:0.2:4).';
-L = 5;
-[y,h] = freqz(ones(L,1)/L,1,1024,8e3);
+ar = X_lp(1,:);
+cc = lpcar2cc(ar,13);
 
-figure
-plot(h/1e3,10*log10(abs(y)))
-xlabel('kHz');
-ylabel('|H(f)| [dB]');
+for i= [65,129,257,513,1025]
+    ar2 = cc2lpspec2(cc,i,10,8e3);
+    disp(sum(sum(abs(ar2-ar))));
+end

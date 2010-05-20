@@ -1,4 +1,4 @@
-function [pm,f0] = conversion_pm2(gm_obj,Y_cc,f0mean,ind,N_x)
+function [pm,f0] = conversion_pm3(gm_obj,Y_cc,f0mean,ind,N_x)
 % pm = conversion_pm(gm_obj,Y_cc,pm_mean)
 % CONVERSION FUNCTION FOR f_0
 
@@ -26,11 +26,20 @@ f0_f = f0mean*exp(f0_conv);
 
 % Frame to single value
 f0 = zeros(N,1);
-f0(1) = mean([f0_f(1,2);f0_f(2,1)]);
-for i=2:N-1
-    f0(i) = mean([f0_f(i-1,3);f0_f(i,2);f0_f(i+1,1)]);
+f0(1) = f0_f(1,2);
+% delta = 0.5*(f0_f(1,3)-f0_f(1,1));
+for i=2:N
+    f0(i) = f0_f(i,2);
+	delta = 0.5*(f0_f(i-1,3)-f0_f(i-1,1));
+    f0_temp = f0_f(i-1,2);
+    e1 = 2*delta;
+    e2 = -0.5*delta;
+    if (delta>0 && (f0(i)-f0_temp)>e1) || (delta<0 && (f0(i)-f0_temp)<e1)
+        f0(i) = f0_temp+e1;
+    elseif (delta>0 && (f0(i)-f0_temp)<e2) || (delta<0 && (f0(i)-f0_temp)>e2)
+        f0(i) = f0_temp+e2; 
+    end
 end
-f0(N) = mean([f0_f(N,2);f0_f(N-1,3)]);
 
 % scale = linspace(0.9,1.1,length(f0)); % Scale f0 to increase over time
 % f0 = f0.*scale';

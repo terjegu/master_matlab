@@ -1,4 +1,4 @@
-function [X_lp,X_lp_conv,X_cc_conv,ind_pm,X_lp_test] = conversion(gm_obj,V,Gamma,sigma_diag,wavfile)
+function [X_lp,X_lp_conv,X_cc_conv,ind_pm,X_lp_test] = conversion_pre(gm_obj,V,Gamma,sigma_diag,wavfile)
 % d = conversion2(gm_obj,V,Gamma,wavfile)
 % CONVERSION FUNCTION
 
@@ -12,6 +12,7 @@ x = x*pow2(15);                                        % prevent underflow
 pm_x = round(pm_x*fs);                                 % seconds to samples
 
 [x,pm_x,f1_x] = strip_sil(x,pm_x,f2_x,f0_x,fs);
+x = filter(1,[1,0.97],x);                      % pre-emphasis
 
 p = 10;                         % LPC order
 p_cc = gm_obj.NDimensions;
