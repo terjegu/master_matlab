@@ -1,4 +1,4 @@
-function [X_warp,Y_warp,f_v] = lpcdtw(x,y,pm_x,pm_y,p,f1_x,f1_y)
+function [X_warp,Y_warp,f_vy,f_vx] = lpcdtw(x,y,pm_x,pm_y,p,f1_x,f1_y)
 % [X_warp,Y_warp,f_v] = lpcdtw(x,y,pm_x,pm_y,p,f1_x,f1_y)
 %   Use dynamic programming to find the lowest-cost path between the
 %   x and y.
@@ -31,6 +31,7 @@ voiced_y(end) = [];
 % Y_warp = Y_lp;
 X_warp = X_lp(voiced_x,:); % UNCOMMENT
 Y_warp = Y_lp(voiced_y,:); % UNCOMMENT
+pm_x = pm_x(voiced_x);
 pm_y = pm_y(voiced_y);
 
 % Construct the 'local match' score matrix 
@@ -52,7 +53,9 @@ for i = n:m
 end
 X_warp = X_warp(unique(p1),:);
 Y_warp = Y_warp(index,:);
-% pm_x = pm_x(unique(p1));
+pm_x = pm_x(unique(p1));
 pm_y = pm_y(index);
-f_v = f1_y(pm_y,2);
+f_vx = f1_x(pm_x,2);
+f_vy = f1_y(pm_y,2);
+
 end

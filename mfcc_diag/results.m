@@ -5,50 +5,88 @@ clear all;
 close all;
 clc;
 
-load('var/gmm_pm64');
-load('var/gmm_pm64_new','gm_f0_new');
+% load('var/gmm_pm64','gm_f0');
+% load('var/gmm_pm64_new','gm_f0_new');
 load('var/gmm64_comb','gm_obj');
+f0mean = 109.8809;
 
 wavfiles = {'s015206','s015247','s015296','s015368','s015445',...
     's015508','s015651','s016199','s016245','s016416'};
 p = 10;
+p_cc = p+3;
 
-fx_A = [];
+% fx_A = [];
 fy_A = [];
-f1_A = [];
-f2_A = [];
-f3_A = [];
-f4_A = [];
+% f1_A = [];
+% f2_A = [];
+% f3_A = [];
+% f4_A = [];
 f5_A = [];
 
 for i=1:length(wavfiles)
-	[x,fs] = wavread(['../data/source_down/t01',wavfiles{i},'.wav']); % source
-    y = wavread(['../data/target_down/t03',wavfiles{i},'.wav']); % target
-    x = x*pow2(15);                                 % prevent underflow
+% 	[x,fs] = wavread(['../data/source_down/t01',wavfiles{i},'.wav']); % source
+    [y,fs] = wavread(['../data/target_down/t03',wavfiles{i},'.wav']); % target
+%     x = x*pow2(15);                                 % prevent underflow
     y = y*pow2(15);
-    [pm_x,~] = textread(['../data/source_pm/t01',wavfiles{i},'.pm'],'%f%f','headerlines',9);
+%     [pm_x,~] = textread(['../data/source_pm/t01',wavfiles{i},'.pm'],'%f%f','headerlines',9);
     [pm_y,~] = textread(['../data/target_pm/t03',wavfiles{i},'.pm'],'%f%f','headerlines',9);
-    pm_x = round(pm_x*fs);                                 % seconds to samples
+%     pm_x = round(pm_x*fs);                                 % seconds to samples
     pm_y = round(pm_y*fs);
-    [f0_x,f2_x,~,~] = textread(['../data/source_f0/t01',wavfiles{i},'.tf0'],'%f%f%f%f');
+%     [f0_x,f2_x,~,~] = textread(['../data/source_f0/t01',wavfiles{i},'.tf0'],'%f%f%f%f');
     [f0_y,f2_y,~,~] = textread(['../data/target_f0/t03',wavfiles{i},'.tf0'],'%f%f%f%f');
 
-    [x,pm_x,f1_x] = strip_sil(x,pm_x,f2_x,f0_x,fs);
+%     [x,pm_x,f1_x] = strip_sil(x,pm_x,f2_x,f0_x,fs);
     [y,pm_y,f1_y] = strip_sil(y,pm_y,f2_y,f0_y,fs);
     
-    [~,Y_lp,fx,fy] = lpcdtw_results(x,y,pm_x,pm_y,p,f1_x,f1_y);
+%     [~,Y_lp,fx,fy] = lpcdtw_results(x,y,pm_x,pm_y,p,f1_x,f1_y);
+% 
+    ny = length(y);
+    nfy = length(pm_y);
+
+    leny = [pm_y(1); pm_y(2:nfy-1)-pm_y(1:nfy-2)];
+    analy = [pm_y(2);pm_y(3:nfy-1)-pm_y(1:nfy-3);ny-pm_y(nfy-2)]-1;
+    skipy = zeros(nfy-1,1);
+    tfy = [leny analy skipy];
+
+    Y_lp = lpcauto(y,p,tfy);
+
+    voiced_y = strip_unv(pm_y,f1_y(:,1));
+    voiced_y(end) = [];
+    Y_lp = Y_lp(voiced_y,:);
+    pm_y = pm_y(voiced_y);
+    fy = f1_y(pm_y,2);
     
-    X_cc_conv = lpcar2cc(Y_lp,p+3);
+    X_cc = lpcar2cc(Y_lp,p_cc);
+
+    N = size(X_cc,1);
+
+    % Transformation
+    gm_obj_x = gmdistribution(gm_obj.mu(:,1:p_cc),gm_obj.Sigma(1:p_cc,1:p_cc,:),gm_obj.PComponents);
+    P = posterior(gm_obj_x,X_cc); % Posterior probability of Y_cc
+
+    m = gm_obj.NComponents;
+    Z = zeros(N,p_cc+1);
+    for i=1:N
+        temp = zeros(1,p_cc+1);
+        for j = 1:m
+            temp = temp + P(i,j)*(gm_obj.mu(j,1+p_cc:end)+...
+                (gm_obj.Sigma(1+p_cc:end,1:p_cc,j)/gm_obj.Sigma(1:p_cc,1:p_cc,j)*...
+                (X_cc(i,:)-gm_obj.mu(j,1:p_cc))')');
+        end
+        Z(i,:) = temp;
+    end
+    F0 = Z(:,p_cc+1);                           % F0 from transformation
+    f5 = f0mean*exp(F0);
     
-    [~,f1] = conversion_pm(gm_f0,X_cc_conv(:,2:end),f0mean);
+%     [~,f1] = conversion_pm(gm_f0,X_cc_conv(:,2:end),f0mean);
 %     [~,f2] = conversion_pm_mavg(gm_f0,X_cc_conv(:,2:end),f0mean);
 %     [~,f3] = conversion_pm2(gm_f0_new,X_cc_conv(:,2:end),f0mean);
 %     [~,f4] = conversion_pm3(gm_f0_new,X_cc_conv(:,2:end),f0mean);
-    [~,~,~,~,f5] = conversion_comb(gm_obj,wavfiles{i},f0mean);
+%     [~,~,~,~,f5] = conversion_comb(gm_obj,wavfiles{i},f0mean);
     
 %     fx_A = [fx_A;fx];
     fy_A = [fy_A;fy];
-    f1_A = [f1_A;f1];
+%     f1_A = [f1_A;f1];
 %     f2_A = [f2_A;f2];
 %     f3_A = [f3_A;f3];
 %     f4_A = [f4_A;f4];
@@ -56,7 +94,7 @@ for i=1:length(wavfiles)
 end
 
 
-e_c1 = f1_A-fy_A;
+% e_c1 = f1_A-fy_A;
 % e_c2 = f2_A-fy_A;
 % e_c3 = f3_A-fy_A;
 % e_c4 = f4_A-fy_A;
@@ -66,9 +104,9 @@ e_c5 = f5_A-fy_A;
 % e_c2 = abs(f2_A-fy_A);
 % e_c3 = abs(f3_A-fy_A);
 % e_x = abs(fx_A-fy_A);
-disp('                  mean     std      Hz');
+disp('                 mean   std      Hz');
 % disp(['source         ' num2str(mean(e_x)) ' ' num2str(std(e_x))]);
-disp(['normal         ' num2str(mean(e_c1)) ' ' num2str(std(e_c1))]);
+% disp(['normal         ' num2str(mean(e_c1)) ' ' num2str(std(e_c1))]);
 % disp(['m avg          ' num2str(mean(e_c2)) ' ' num2str(std(e_c2))]);
 % disp(['improved m avg ' num2str(mean(e_c3)) ' ' num2str(std(e_c3))]);
 % disp(['delta lim      ' num2str(mean(e_c4)) ' ' num2str(std(e_c4))]);

@@ -6,19 +6,13 @@ function [gm_obj,gm_f0] = train_gmm(X_cc,m,Y_cc,f0,f0mean_all,m_p)
 
 % Terje Gundersen 30.10.2009
 
-[N,p] = size(X_cc);                     % MFCC order
+p = size(X_cc,2);                     % MFCC order
 sigma_lb = 1e-5;                        % lower bound for Sigma
 opt = statset('MaxIter',250);
 % opt = statset('Display','iter','MaxIter',250);
 
 if nargin > 2                           % Train f_0 gmm
     f0 = log(f0./f0mean_all);
-%     f0_f = zeros(N,3);                  % Enframe
-%     f0_f(1,:) = [f0(2),f0(1),f0(2)];
-%     for i=2:N-1
-%         f0_f(i,:) = [f0(i-1),f0(i),f0(i+1)];
-%     end
-%     f0_f(N,:) = [f0(N),f0(N-1),f0(N)];
     Z = [Y_cc,f0];                    % Joint training matrix
     [Sp.mu,~,Jp] = kmeans(Z,m_p);       % VQ for initialisation
     N_jp = numel(Jp);

@@ -5,33 +5,35 @@ clc;
 
 %% Read files
 N = 100;
-[X_cc,Y_cc,f0,f0mean] = readfiles(N);
-save('var/wavfiles_pre','X_cc','Y_cc','f0','f0mean');
+[X_cc,Y_cc,f_vx,f_vy,f0_mean_x,f0_mean_y] = readfiles(N);
+save('var/wavfiles','X_cc','Y_cc','f_vx','f_vy','f0_mean_x','f0_mean_y');
 
 %% Train GMM
 clear all;
 close all;
 clc;
-load('var/wavfiles');
+load('var/wavfiles','X_cc','f_vx','f0_mean_x');
 m = 128;
 mp = 64;
 % N = 500*20;
-% gm_obj = train_gmm(X_cc(:,2:end),m);
-% [~,gm_f0] = train_gmm2(1,1,Y_cc(:,2:end),f0,f0mean,mp);
-gm_obj = train_gmm_comb(X_cc,Y_cc,f0,f0mean,mp);
-% save('var/gmm128_trim','gm_obj');
+% gm_obj = train_gmm(Y_cc,m);
+[~,gm_f0] = train_gmm(1,1,X_cc(:,2:end),f_vx,f0_mean_x,mp);
+% gm_obj = train_gmm_comb(X_cc,Y_cc,f0,f0mean,mp);
+% save('var/gmm128_y','gm_obj');
 % save('var/gmm_pm64_new','gm_f0_new','f0mean');
-save('var/gmm64_comb','gm_obj','f0mean');
+save('var/gmm_pm64_y','gm_f0','f0_mean_x');
+% save('var/gmm64_comb','gm_obj','f0mean');
 
 %% Training of Sigma_yx
 clear all;
 close all;
 clc;
 load('var/wavfiles');
-load('var/gmm128_trim');
+load('var/gmm128_y');
 % N = 500*20;
-[V,Gamma,sigma_diag] = training(gm_obj,X_cc(:,2:end),Y_cc(:,2:end));
-save('var/variables128_trim','V','Gamma','sigma_diag');
+[V,Gamma,sigma_diag] = training(gm_obj,Y_cc,X_cc);
+% [V,Gamma,sigma_diag] = training(gm_obj,X_cc(:,2:end),Y_cc(:,2:end));
+save('var/variables128_y','V','Gamma','sigma_diag');
 
 %% Conversion of X_cc
 clear all;

@@ -183,12 +183,27 @@ disp('mean_1 std_1   mean_2 std_2   mean_3 std_3')
 disp([mean(delta),std(delta),mean(delta2),std(delta2),mean(delta3),std(delta3)]);
 
 %%
+clear all;
+source_path = '../data/source_down';
+target_path = '../data/target_down';
+list_s = dir(source_path);
+list_t = dir(target_path);
+wavfiles = {'s015206','s015247','s015296','s015368','s015445',...
+    's015508','s015651','s016199','s016245','s016416'};
 
-% data = (1:0.2:4).';
-ar = X_lp(1,:);
-cc = lpcar2cc(ar,13);
+x_A = [];
+y_A = [];
 
-for i= [65,129,257,513,1025]
-    ar2 = cc2lpspec2(cc,i,10,8e3);
-    disp(sum(sum(abs(ar2-ar))));
+fs = 8e3;
+
+for i=4:103
+    filename_x = {list_s(i,1).name};
+    filename_y = {list_t(i,1).name};
+	x = wavread([source_path,'/',filename_x{1}]);	% Read wav file
+	y = wavread([target_path,'/',filename_y{1}]);
+    x_A = [x_A;x];
+    y_A = [y_A;y];
 end
+
+disp(length(x_A)/100/fs);
+disp(length(y_A)/100/fs);
