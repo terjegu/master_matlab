@@ -207,3 +207,64 @@ end
 
 disp(length(x_A)/100/fs);
 disp(length(y_A)/100/fs);
+
+
+%%
+close all;
+clear all;
+clc;
+freqz(1,[1 0.97]);
+
+[h,w] = freqz(1,[1 0.97],512);
+
+figure
+plot(w,10*log(abs(h)))
+grid on;
+ylabel('Magnitude (dB)')
+xlabel('Frequency (rad)')
+axis([0 pi -10 40])
+
+%% hamming vs hanning
+close all;
+clear all;
+% clc;
+% 
+hm = hamming(200);
+hn = hanning(200);
+% fhm = 10*log(abs(fft(hm,256)));
+% fhn = 10*log(abs(fft(hn,256)));
+% 
+% figure(1)
+% plot(hm)
+% hold on;
+% plot(hn,'r');
+% legend('hamming','hanning');
+% 
+% figure(2)
+% plot(fhm)
+% hold on;
+% plot(fhn,'r');
+% legend('hamming','hanning');
+
+[x,fs] = wavread(['../data/source_down/t01s000228.wav']); % source
+
+frm = x(10000:10199);
+frm2 = x(10100:10299);
+frm3 = x(10200:10399);
+
+hmx = frm.*hn;
+% hnx = frm.*hn;
+hmf = zeros(400,1);
+hmf(1:200) = hmx;
+hmf(100:299) = hmf(100:299)+frm2.*hn;
+hmf(200:399) = hmf(200:399)+frm3.*hn;
+% fhmx = 10*log(abs(fft(hmx,256)));
+% fhnx = 10*log(abs(fft(hnx,256)));
+
+figure(3)
+subplot(211)
+plot(x(10100:10299));
+subplot(212)
+plot(hmf(100:299));
+
+sum(x(10100:10299)-hmf(100:299))

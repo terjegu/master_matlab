@@ -12,16 +12,16 @@ save('var/wavfiles','X_cc','Y_cc','f_vx','f_vy','f0_mean_x','f0_mean_y');
 clear all;
 close all;
 clc;
-load('var/wavfiles','X_cc','f_vx','f0_mean_x');
+load('var/wavfiles','X_cc','f_vy','f0_mean_y');
 m = 128;
 mp = 64;
 % N = 500*20;
 % gm_obj = train_gmm(Y_cc,m);
-[~,gm_f0] = train_gmm(1,1,X_cc(:,2:end),f_vx,f0_mean_x,mp);
+[~,gm_f0_x] = train_gmm(1,1,X_cc(:,2:end),f_vy,f0_mean_y,mp);
 % gm_obj = train_gmm_comb(X_cc,Y_cc,f0,f0mean,mp);
 % save('var/gmm128_y','gm_obj');
 % save('var/gmm_pm64_new','gm_f0_new','f0mean');
-save('var/gmm_pm64_y','gm_f0','f0_mean_x');
+save('var/gmm_pm64_x','gm_f0_x','f0_mean_y');
 % save('var/gmm64_comb','gm_obj','f0mean');
 
 %% Training of Sigma_yx
