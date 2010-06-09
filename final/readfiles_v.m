@@ -1,4 +1,4 @@
-function [X_cc,Y_cc,f_vx,f_vy,f0_mean_x,f0_mean_y]=readfiles(N)
+function [X_cc,Y_cc,f_vx,f_vy]=readfiles_v(N)
 % [X_lsf,Y_lsf]=readfiles(N)
 % Read files to MFCC matrices
 % N = number of sentences
@@ -22,13 +22,12 @@ list_tpm = dir(target_pm_path);
 list_tf0 = dir(target_f0_path);
 
 fs = 8e3;                       % Sampling frequency
-p = 10;                         % LPC order (Fs/1000+2)
+p = 10;                         % LPC order (Fs/1000)
 p_cc = p+3;                     % CC order
 X_cc = [];                      % Feature matrix used in training
 Y_cc = [];                      % Feature matrix used in training
-f_vx = [];                      % F_0 for source vectors
-f_vy = [];                      % F_0 for target vectors
-% alpha = 0.97;                   % Pre-emph coeff
+f_vx = [];                       % F_0 for source vectors
+f_vy = [];                       % F_0 for target vectors
 
 for i=3:N+2
     filename_x = {list_s(i,1).name};
@@ -51,13 +50,9 @@ for i=3:N+2
         pm_y = round(pm_y*fs);
         
         [x,pm_x,f1_x] = strip_sil(x,pm_x,f2_x,f0_x,fs);
-        [y,pm_y,f1_y] = strip_sil(y,pm_y,f2_y,f0_y,fs);
+        [y,pm_y,f1_y] = strip_sil(y,pm_y,f2_y,f0_y,fs);       
         
-%         x = filter(1,[1,alpha],x);                      % pre-emphasis
-%         y = filter(1,[1,alpha],y);
-        
-        
-        [X_lp,Y_lp,fvy_temp,fvx_temp] = lpcdtw(x,y,pm_x,pm_y,p,f1_x,f1_y);
+        [X_lp,Y_lp,fvx_temp,fvy_temp] = lpcdtw_v(x,y,pm_x,pm_y,p,f1_x,f1_y);
         
         X_cc_temp = lpcar2cc(X_lp,p_cc);     % Convert LP to CC
         Y_cc_temp = lpcar2cc(Y_lp,p_cc);     % Convert LP to CC
@@ -70,7 +65,7 @@ for i=3:N+2
     end
 end
 
-f0_mean_x = mean(f_vx(f_vx>0));
-f0_mean_y = mean(f_vy(f_vy>0));
+% f0_mean_x = mean(f_vx(f_vx>0));
+% f0_mean_y = mean(f_vy(f_vy>0));
 
 end

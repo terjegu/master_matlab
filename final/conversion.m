@@ -40,11 +40,26 @@ for i=1:fn
             gm_obj.mu(:,k)).*sigma_diag(:,k)+V(:,k))');
     end
 end
-temp_ar = lpccc2ar(X_cc_conv); % Constrain stability
-temp_rf = lpcar2rf(temp_ar);
-temp_rf(temp_rf>=1) = 0.999;
-temp_rf(temp_rf<=-1) = -0.999;
-temp_ar = lpcrf2ar(temp_rf);
+temp_ar = lpccc2ar(X_cc_conv);	
+temp_rf = lpcar2rf(temp_ar);    % Check stability
+for i =1:fn                     % Mirror to stabilise
+    if find(temp_rf(i,:)>1)
+        temp_zz = lpcar2zz(temp_ar(i,:));
+        temp_zz(abs(temp_zz)>1) = temp_zz(abs(temp_zz)>1)./abs(temp_zz(abs(temp_zz)>1)).^2;
+        temp_ar(i,:) = lpczz2ar(temp_zz);
+    end
+end
+
+% temp_rf(temp_rf>=1) = 0.999;
+% temp_rf(temp_rf<=-1) = -0.999;
+% temp_ar = lpcrf2ar(temp_rf);
+% temp_zz = lpcar2zz(temp_ar);
+% for i=1:fn
+%     for j = find(temp_zz(abs(temp_zz(i,:))>1))
+%         temp_zz(i,j) = temp_zz(i,j)/abs(temp_zz(i,j))^2;
+%     end
+% end
+% temp_ar = lpczz2ar(temp_zz);
 X_cc_conv = lpcar2cc(temp_ar);
 
 X_lp_conv = cc2lpspec2(X_cc_conv,513,p,fs);

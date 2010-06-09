@@ -32,7 +32,7 @@ if nargin>3
     f0_t(1:L-1) = temp(1:L-1);
 
     % f0 to pitch markings
-    pm = round(8e3*cumsum(1./temp));
+    pm = round(8e3*cumsum(1./f0_t));
 else
     L=3;
     f0_t = filter(ones(L,1)/L,1,f0);

@@ -213,58 +213,69 @@ disp(length(y_A)/100/fs);
 close all;
 clear all;
 clc;
-freqz(1,[1 0.97]);
+X = 1/3*ones(3,1);
+% freqz(1,[1 0.97]);
+freqz(X,1);
 
-[h,w] = freqz(1,[1 0.97],512);
+[h,w] = freqz(X,1,512);
+% [h,w] = freqz(1,[1 0.97],512);
 
 figure
 plot(w,10*log(abs(h)))
 grid on;
 ylabel('Magnitude (dB)')
 xlabel('Frequency (rad)')
-axis([0 pi -10 40])
+axis([0 pi -60 0])
 
-%% hamming vs hanning
-close all;
+%% for vs mat
 clear all;
-% clc;
+
+ar = lpcrf2ar([0.2 1 -0.2 1.5;0.2 1 -0.2 1.5]);
+
+zz = lpcar2zz(ar);
+
+rf = lpcar2rf(ar);
+rf(rf>1) = 0.999;
+
+
+zz2 = zz(1)/abs(zz(1))^2;
+
+for i=1:2
+    for j = find(zz(abs(zz(i,:))>1))
+        zz(i,j) = zz(i,j)/abs(zz(i,j))^2;
+    end
+end
+
+ar2 = lpczz2ar(zz);
+
+% figure
+% freqz(ar)
 % 
-hm = hamming(200);
-hn = hanning(200);
-% fhm = 10*log(abs(fft(hm,256)));
-% fhn = 10*log(abs(fft(hn,256)));
+% figure
+% freqz(ar2)
 % 
-% figure(1)
-% plot(hm)
-% hold on;
-% plot(hn,'r');
-% legend('hamming','hanning');
-% 
-% figure(2)
-% plot(fhm)
-% hold on;
-% plot(fhn,'r');
-% legend('hamming','hanning');
+% figure
+% freqz(lpcrf2ar(rf))
 
-[x,fs] = wavread(['../data/source_down/t01s000228.wav']); % source
+%%
+clc;
 
-frm = x(10000:10199);
-frm2 = x(10100:10299);
-frm3 = x(10200:10399);
+load('var/test');
+temp_ar = X_lp;
+[fn,n] = size(X_lp);
+temp_ar(2,2:3) = [4,-9];
+temp_ar(4,2:5) = [4,-9,2,-5];
 
-hmx = frm.*hn;
-% hnx = frm.*hn;
-hmf = zeros(400,1);
-hmf(1:200) = hmx;
-hmf(100:299) = hmf(100:299)+frm2.*hn;
-hmf(200:399) = hmf(200:399)+frm3.*hn;
-% fhmx = 10*log(abs(fft(hmx,256)));
-% fhnx = 10*log(abs(fft(hnx,256)));
+temp_rf = lpcar2rf(temp_ar);
+for i =1:fn
+    if find(temp_rf(i,:)>1)
+        temp_zz = lpcar2zz(temp_ar(i,:));
+        temp_zz(abs(temp_zz)>1) = temp_zz(abs(temp_zz)>1)./abs(temp_zz(abs(temp_zz)>1)).^2;
+%         disp(lpczz2ar(temp_zz))
+        temp_ar(i,:) = lpczz2ar(temp_zz);
+    end
+end
+temp_rf = lpcar2rf(temp_ar);
 
-figure(3)
-subplot(211)
-plot(x(10100:10299));
-subplot(212)
-plot(hmf(100:299));
 
-sum(x(10100:10299)-hmf(100:299))
+
